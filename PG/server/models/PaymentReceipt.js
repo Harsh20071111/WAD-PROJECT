@@ -48,6 +48,13 @@ const paymentReceiptSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
+    lineItems: [
+      {
+        type: { type: String },
+        label: { type: String },
+        amount: { type: Number }
+      }
+    ],
     paidAt: {
       type: Date,
       required: true

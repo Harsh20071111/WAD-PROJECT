@@ -14,3 +14,8 @@ export const getMyPayments = async () => data(await api.get('/payments/mine'));
 export const createPaymentOrder = async (id) => data(await api.post(`/payments/${id}/order`));
 export const verifyPayment = async (id, payload) => data(await api.post(`/payments/${id}/verify`, payload));
 export const getNotifications = async () => data(await api.get('/notifications'));
+export const runRent = async () => data(await api.post('/payments/rent-run'));
+export const applyLateFees = async () => data(await api.post('/payments/apply-late-fees'));
+export const recordManualPayment = async (payload) => data(await api.post('/payments/manual', payload));
+export const updateLateFeeConfig = async (payload) => data(await api.put('/pg/late-fee-config', payload));
+export const getMyPG = async () => data(await api.get('/pg/mine'));
