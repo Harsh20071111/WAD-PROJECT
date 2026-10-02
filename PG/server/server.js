@@ -3,14 +3,10 @@ const cors    = require('cors');
 const helmet  = require('helmet');
 const morgan  = require('morgan');
 const dotenv  = require('dotenv');
-const net     = require('net');
 const connectDB = require('./config/db');
 
 // Load environment variables first
 dotenv.config();
-
-// Connect to MongoDB
-connectDB();
 
 const app = express();
 
@@ -72,33 +68,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ─── Start server (auto-increment port if busy) ───────────────────────────────
+// ─── Start server after MongoDB is ready ─────────────────────────────────────
 const PORT = Number(process.env.PORT || 5000);
 
-const getAvailablePort = (preferred) =>
-  new Promise((resolve, reject) => {
-    const tester = net.createServer();
-    tester.once('error', (err) => {
-      if (err.code === 'EADDRINUSE') return resolve(getAvailablePort(preferred + 1));
-      reject(err);
-    });
-    tester.once('listening', () => {
-      const addr = tester.address();
-      const port = typeof addr === 'object' && addr ? addr.port : preferred;
-      tester.close(() => resolve(port));
-    });
-    tester.listen(preferred);
-  });
+const startServer = async () => {
+  await connectDB();
+  app.listen(PORT, '0.0.0.0', () =>
+    console.log(
+      `✅ PG Management server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+    )
+  );
+};
 
-getAvailablePort(PORT)
-  .then((port) => {
-    app.listen(port, '0.0.0.0', () =>
-      console.log(
-        `✅ PG Management server running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`
-      )
-    );
-  })
-  .catch((err) => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  });
+startServer().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});

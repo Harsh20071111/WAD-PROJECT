@@ -38,9 +38,10 @@ const Login = () => {
 
   const fillDemo = (role) => {
     const creds = {
-      ADMIN:    { email: 'admin@pgmanage.com',  password: 'Admin@1234' },
-      RESIDENT: { email: 'priya@resident.com',  password: 'Resident@1234' },
-      STAFF:    { email: 'ravi@sunrise.pg',     password: 'Staff@1234' },
+      // These accounts are created by the Smart PG MongoDB seed.
+      ADMIN:    { email: 'admin@smartpg.com', password: 'Admin@123' },
+      RESIDENT: { email: 'amit@example.com',  password: 'Resident@123' },
+      STAFF:    { email: 'staff@smartpg.com', password: 'Staff@123' },
     };
     setForm(creds[role]);
     setError('');
@@ -187,10 +188,10 @@ const Login = () => {
           </form>
 
           <p className="text-center text-body-sm text-on-surface-variant">
-            Don't have access?{' '}
-            <Link to="/contact" className="text-primary font-semibold hover:underline">
-              Contact admin
-            </Link>
+            Need an account?{' '}
+            <Link to="/register" className="text-primary font-semibold hover:underline">Register</Link>
+            {' '}or{' '}
+            <Link to="/contact" className="text-primary font-semibold hover:underline">contact admin</Link>
           </p>
         </div>
       </div>

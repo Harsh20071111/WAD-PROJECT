@@ -14,6 +14,7 @@ import Contact from './pages/public/Contact';
 
 // Auth
 import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import DesignPreview from './pages/DesignPreview';
 
 // Admin pages
@@ -49,6 +50,7 @@ function App() {
 
           {/* Auth */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/design-preview" element={<DesignPreview />} />
 
           {/* Admin routes */}
