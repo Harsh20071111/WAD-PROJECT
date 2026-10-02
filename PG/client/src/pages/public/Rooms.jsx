@@ -75,7 +75,7 @@ const ExplorePGs = () => {
       </div>
 
       {/* ── Search & Location ── */}
-      <div className="mb-10 max-w-3xl mx-auto bg-surface-container-lowest p-2 rounded-2xl shadow-card border border-outline-variant flex flex-col sm:flex-row gap-2">
+      <div className="mb-6 max-w-3xl mx-auto bg-surface-container-lowest p-2 rounded-2xl shadow-card border border-outline-variant flex flex-col sm:flex-row gap-2">
         <form onSubmit={handleSearch} className="flex-1 flex items-center relative">
           <Icon name="search" size={20} className="absolute left-4 text-on-surface-variant" />
           <input 
@@ -94,6 +94,19 @@ const ExplorePGs = () => {
           </Button>
           <Button onClick={handleSearch} className="px-6">Search</Button>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-10 max-w-3xl mx-auto">
+        <span className="text-label-sm text-on-surface-variant mr-1">Popular Cities:</span>
+        {['Ahmedabad', 'Hyderabad', 'Bangalore', 'Pune', 'Delhi'].map(city => (
+          <button 
+            key={city}
+            onClick={() => { setSearchCity(city); fetchPGs(city); }}
+            className={`px-4 py-1.5 rounded-full text-label-md transition-colors border ${searchCity.toLowerCase() === city.toLowerCase() ? 'bg-primary border-primary text-on-primary font-semibold shadow-sm' : 'bg-surface-container-lowest border-outline-variant text-on-surface-variant hover:bg-surface-container-low'}`}
+          >
+            {city}
+          </button>
+        ))}
       </div>
 
       {/* ── PG Grid ── */}
