@@ -18,7 +18,36 @@ router.get('/', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-router.post('/', restrictTo('ADMIN'), createRoom);
+router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
+  const session = await mongoose.startSession();
+  try {
+    let result;
+    await session.withTransaction(async () => {
+      const { roomNumber, floor, type, capacity, rent, amenities = [] } = req.body;
+      if (!roomNumber || floor == null || !type || !capacity || !rent) {
+        const error = new Error('roomNumber, floor, type, capacity and rent are required');
+        error.statusCode = 400;
+        throw error;
+      }
+      const exists = await Room.findOne({ pgId: req.user.pgId, roomNumber }).session(session);
+      if (exists) {
+        const error = new Error(`Room ${roomNumber} already exists`);
+        error.statusCode = 409;
+        throw error;
+      }
+      const room = await Room.create([{ pgId: req.user.pgId, roomNumber, floor, type, capacity, rent, amenities }], { session });
+      const beds = [];
+      for (let i = 0; i < capacity; i++) {
+        beds.push({ pgId: req.user.pgId, roomId: room[0]._id, label: String.fromCharCode(65 + i), status: 'AVAILABLE' });
+      }
+      await Bed.insertMany(beds, { session });
+      const createdBeds = await Bed.find({ roomId: room[0]._id }).session(session).lean();
+      result = { ...room[0].toObject(), beds: createdBeds };
+    });
+    res.status(201).json({ success: true, data: result });
+  } catch (error) { next(Object.assign(error, { status: error.statusCode || 500 })); }
+  finally { await session.endSession(); }
+});
 
 router.patch('/beds/:id/status', restrictTo('ADMIN'), async (req, res, next) => {
   try {
