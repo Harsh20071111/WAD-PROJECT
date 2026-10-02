@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', require('./routes/authRoutes'));
 
-// Phase 4+:  app.use('/api/rooms',      require('./routes/roomRoutes'));
+app.use('/api/rooms',      require('./routes/roomRoutes'));
 // Phase 4+:  app.use('/api/public',     require('./routes/publicRoutes'));
 // Phase 5+:  app.use('/api/residents',  require('./routes/residentRoutes'));
 // Phase 6+:  app.use('/api/payments',   require('./routes/paymentRoutes'));
