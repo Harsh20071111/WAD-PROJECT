@@ -40,7 +40,7 @@ const Login = () => {
     const creds = {
       ADMIN:    { email: 'admin@pgmanage.com', password: 'Admin@1234' },
       RESIDENT: { email: 'priya@resident.com',  password: 'Resident@1234' },
-      STAFF:    { email: 'ravi@sunrise.pg',     password: 'Staff@1234' },
+      STAFF:    { email: 'ravi@sunrise.pg', password: 'Staff@1234' },
     };
     setForm(creds[role]);
     setError('');

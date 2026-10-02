@@ -61,4 +61,16 @@ router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+router.put('/late-fee-config', restrictTo('ADMIN'), async (req, res, next) => {
+  try {
+    const { graceDays, finePerDay } = req.body;
+    const pg = await PG.findById(req.user.pgId);
+    if (!pg) return res.status(404).json({ success: false, message: 'PG not found.' });
+    if (graceDays !== undefined) pg.graceDays = graceDays;
+    if (finePerDay !== undefined) pg.finePerDay = finePerDay;
+    await pg.save();
+    res.json({ success: true, data: pg });
+  } catch (error) { next(error); }
+});
+
 module.exports = router;

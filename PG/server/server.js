@@ -47,12 +47,6 @@ app.use('/api/enquiries', require('./routes/enquiryRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/receipts', require('./routes/receiptRoutes'));
 
-// Phase 4+:  app.use('/api/rooms',      require('./routes/roomRoutes'));
-// Phase 4+:  app.use('/api/public',     require('./routes/publicRoutes'));
-// Phase 5+:  app.use('/api/residents',  require('./routes/residentRoutes'));
-// Phase 6+:  app.use('/api/payments',   require('./routes/paymentRoutes'));
-// Phase 8+:  app.use('/api/complaints', require('./routes/complaintRoutes'));
-
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.status(200).json({

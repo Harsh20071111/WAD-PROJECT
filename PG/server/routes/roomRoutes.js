@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
 const Room = require('../models/Room');
@@ -6,7 +7,6 @@ const Bed = require('../models/Bed');
 const Resident = require('../models/Resident');
 const mongoose = require('mongoose');
 
-const router = express.Router();
 router.use(protect);
 
 router.get('/', async (req, res, next) => {

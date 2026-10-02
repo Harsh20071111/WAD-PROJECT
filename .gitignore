@@ -31,3 +31,8 @@ yarn-error.log*
 
 # System generated
 .system_generated/
+
+# Local database and frontend caches
+/backend/.data/
+/backend/.mongodb_data/
+/frontend/.vite/

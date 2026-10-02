@@ -60,6 +60,16 @@ const pgSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Owner ID is required'],
+    },
+    graceDays: {
+      type: Number,
+      default: 5,
+      min: [0, 'Grace days cannot be negative']
+    },
+    finePerDay: {
+      type: Number,
+      default: 50,
+      min: [0, 'Fine per day cannot be negative']
     }
   },
   {

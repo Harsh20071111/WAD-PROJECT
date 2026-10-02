@@ -20,3 +20,9 @@ export const getResidentsForAssignment = async () => data(await api.get('/reside
 export const assignBed = async (bedId, residentId) => data(await api.post(`/rooms/beds/${bedId}/assign`, { residentId }));
 export const vacateBed = async (bedId) => data(await api.post(`/rooms/beds/${bedId}/vacate`));
 export const updateBedStatus = async (bedId, payload) => data(await api.patch(`/rooms/beds/${bedId}/status`, payload));
+export const runRent = async () => data(await api.post('/payments/rent-run'));
+export const applyLateFees = async () => data(await api.post('/payments/apply-late-fees'));
+export const recordManualPayment = async (payload) => data(await api.post('/payments/manual', payload));
+export const updateLateFeeConfig = async (payload) => data(await api.put('/pg/late-fee-config', payload));
+export const getMyPG = async () => data(await api.get('/pg/mine'));
+export const getReceipts = async () => data(await api.get('/receipts'));
