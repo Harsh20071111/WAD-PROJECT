@@ -34,16 +34,6 @@ export const AuthProvider = ({ children }) => {
     return u;
   }, []);
 
-  const register = useCallback(async (userData) => {
-    const { data } = await api.post('/auth/register', userData);
-    const { accessToken, refreshToken, user: u } = data.data;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('user', JSON.stringify(u));
-    setUser(u);
-    return u;
-  }, []);
-
   const logout = useCallback(async () => {
     const refreshToken = localStorage.getItem('refreshToken');
     try {
@@ -59,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

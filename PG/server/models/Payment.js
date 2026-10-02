@@ -23,6 +23,24 @@ const paymentSchema = new mongoose.Schema(
       required: [true, 'Amount is required'],
       min: [0, 'Amount cannot be negative']
     },
+    lineItems: [
+      {
+        type: {
+          type: String,
+          enum: ['RENT', 'LATE_FEE', 'ADJUSTMENT'],
+          required: true
+        },
+        label: {
+          type: String,
+          required: true,
+          trim: true
+        },
+        amount: {
+          type: Number,
+          required: true
+        }
+      }
+    ],
     paidAmount: {
       type: Number,
       default: 0,

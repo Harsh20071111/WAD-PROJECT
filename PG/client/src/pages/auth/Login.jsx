@@ -38,7 +38,6 @@ const Login = () => {
 
   const fillDemo = (role) => {
     const creds = {
-      // These accounts are created by the PG Management MongoDB seed.
       ADMIN:    { email: 'admin@pgmanage.com', password: 'Admin@1234' },
       RESIDENT: { email: 'priya@resident.com',  password: 'Resident@1234' },
       STAFF:    { email: 'ravi@sunrise.pg', password: 'Staff@1234' },
@@ -188,10 +187,8 @@ const Login = () => {
           </form>
 
           <p className="text-center text-body-sm text-on-surface-variant">
-            Need an account?{' '}
-            <Link to="/register" className="text-primary font-semibold hover:underline">Register</Link>
-            {' '}or{' '}
-            <Link to="/contact" className="text-primary font-semibold hover:underline">contact admin</Link>
+            Only an administrator can create resident accounts.{' '}
+            <Link to="/contact" className="text-primary font-semibold hover:underline">Contact admin</Link>
           </p>
         </div>
       </div>
