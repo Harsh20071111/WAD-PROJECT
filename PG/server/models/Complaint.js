@@ -45,16 +45,12 @@ const complaintSchema = new mongoose.Schema(
       trim: true,
       maxlength: [2000, 'Description cannot exceed 2000 characters']
     },
-    attachments: [{
-      url: {
-        type: String,
-        required: true
-      },
-      publicId: {
-        type: String,
-        required: true
+    attachments: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, default: '' }
       }
-    }],
+    ],
     status: {
       type: String,
       enum: ['NEW', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD', 'RESOLVED', 'CLOSED'],
@@ -64,7 +60,35 @@ const complaintSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Staff',
       default: null
-    }
+    },
+    slaHours: {
+      type: Number,
+      default: 24
+    },
+    slaDueAt: {
+      type: Date,
+      required: true
+    },
+    breachedAt: {
+      type: Date,
+      default: null
+    },
+    resolutionNote: {
+      type: String,
+      default: ''
+    },
+    resolvedAt: {
+      type: Date,
+      default: null
+    },
+    timeline: [
+      {
+        status: { type: String, required: true },
+        note: { type: String, default: '' },
+        updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        time: { type: Date, default: Date.now }
+      }
+    ]
   },
   {
     timestamps: true
@@ -74,8 +98,9 @@ const complaintSchema = new mongoose.Schema(
 // Indexes
 complaintSchema.index({ pgId: 1 });
 complaintSchema.index({ residentId: 1 });
+complaintSchema.index({ assignedStaffId: 1 });
 complaintSchema.index({ status: 1 });
-complaintSchema.index({ pgId: 1, status: 1 });
+complaintSchema.index({ slaDueAt: 1, breachedAt: 1 });
 complaintSchema.index({ requestNo: 1 }, { unique: true });
 
 module.exports = mongoose.model('Complaint', complaintSchema);

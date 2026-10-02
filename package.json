@@ -1,0 +1,10 @@
+{
+  "name": "wad-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart PG & Hostel Management System Root Workspace",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix PG/server",
+    "dev:frontend": "npm run dev --prefix PG/client"
+  }
+}

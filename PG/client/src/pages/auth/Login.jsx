@@ -38,10 +38,9 @@ const Login = () => {
 
   const fillDemo = (role) => {
     const creds = {
-      // These accounts are created by the Smart PG MongoDB seed.
-      ADMIN:    { email: 'admin@smartpg.com', password: 'Admin@123' },
-      RESIDENT: { email: 'amit@example.com',  password: 'Resident@123' },
-      STAFF:    { email: 'staff@smartpg.com', password: 'Staff@123' },
+      ADMIN:    { email: 'admin@pgmanage.com', password: 'Admin@1234' },
+      RESIDENT: { email: 'priya@resident.com',  password: 'Resident@1234' },
+      STAFF:    { email: 'ravi@sunrise.pg',    password: 'Staff@1234' },
     };
     setForm(creds[role]);
     setError('');

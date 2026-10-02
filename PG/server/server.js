@@ -1,8 +1,8 @@
 const express = require('express');
-const cors    = require('cors');
-const helmet  = require('helmet');
-const morgan  = require('morgan');
-const dotenv  = require('dotenv');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
 // Load environment variables first
@@ -35,13 +35,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth',       require('./routes/authRoutes'));
+app.use('/api/residents',  require('./routes/residentRoutes'));
+app.use('/api/notices',    require('./routes/noticeRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
+app.use('/api/feedback',   require('./routes/feedbackRoutes'));
 
-// Phase 4+:  app.use('/api/rooms',      require('./routes/roomRoutes'));
-// Phase 4+:  app.use('/api/public',     require('./routes/publicRoutes'));
-// Phase 5+:  app.use('/api/residents',  require('./routes/residentRoutes'));
-// Phase 6+:  app.use('/api/payments',   require('./routes/paymentRoutes'));
-// Phase 8+:  app.use('/api/complaints', require('./routes/complaintRoutes'));
+// SLA Breach Cron Job (checks every 5 mins)
+require('./utils/slaCron').initSlaCron();
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

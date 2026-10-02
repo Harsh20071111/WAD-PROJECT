@@ -1,16 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-
-const MOCK = [
-  { _id: '1', requestNo: 'REQ1001', resident: 'Priya Sharma', room: '103-C', category: 'Electrical', priority: 'HIGH', title: 'Fan not working', description: 'The ceiling fan in the room has stopped working completely since yesterday.', status: 'ASSIGNED', assignedTo: 'Ravi Kumar', createdAt: '2026-10-01' },
-  { _id: '2', requestNo: 'REQ1002', resident: 'Arjun Mehta', room: '203-C', category: 'Plumbing', priority: 'URGENT', title: 'Water leakage', description: 'There is water leaking from under the bathroom basin.', status: 'IN_PROGRESS', assignedTo: 'Ravi Kumar', createdAt: '2026-10-02' },
-  { _id: '3', requestNo: 'REQ1003', resident: 'Priya Sharma', room: '103-C', category: 'Wi-Fi', priority: 'MEDIUM', title: 'Internet very slow', description: 'WiFi speed dropped drastically after 8PM every day.', status: 'NEW', assignedTo: null, createdAt: '2026-10-03' },
-  { _id: '4', requestNo: 'REQ1004', resident: 'Arjun Mehta', room: '203-C', category: 'Cleaning', priority: 'LOW', title: 'Common area dirty', description: 'The corridor on Floor 2 has not been cleaned for 2 days.', status: 'RESOLVED', assignedTo: 'Suresh Nair', createdAt: '2026-09-28' },
-];
+import api from '../../services/api';
 
 const TRANSITIONS = {
   NEW: ['ASSIGNED'],
@@ -22,12 +16,83 @@ const TRANSITIONS = {
 };
 
 const Complaints = () => {
-  const [tab, setTab]           = useState('ALL');
-  const [selected, setSelected] = useState(null);
-  const [newOpen, setNewOpen]   = useState(false);
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [updating, setUpdating]     = useState(false);
+  const [tab, setTab]               = useState('ALL');
+  const [selected, setSelected]     = useState(null);
+  const [newOpen, setNewOpen]       = useState(false);
+  const [error, setError]           = useState('');
+  const [updateNote, setUpdateNote] = useState('');
+
+  const fetchComplaints = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const { data } = await api.get('/complaints');
+      if (data.success) {
+        setComplaints(data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin complaints:', err);
+      setError('Failed to fetch complaints list from server.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchComplaints();
+  }, [fetchComplaints]);
+
+  const handleStatusUpdate = async (newStatus) => {
+    if (!selected) return;
+    try {
+      setUpdating(true);
+      const { data } = await api.patch(`/complaints/${selected._id}/status`, {
+        status: newStatus,
+        note: updateNote || `Status updated to ${newStatus}`,
+      });
+      if (data.success) {
+        setUpdateNote('');
+        setSelected(null);
+        await fetchComplaints();
+      }
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      alert(err.response?.data?.message || 'Failed to update ticket status.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const getResidentName = (c) => {
+    if (typeof c.residentId === 'object' && c.residentId?.userId?.name) {
+      return c.residentId.userId.name;
+    }
+    return c.resident || 'Resident';
+  };
+
+  const getRoomNumber = (c) => {
+    if (typeof c.roomId === 'object' && c.roomId?.roomNumber) {
+      return `Room ${c.roomId.roomNumber}`;
+    }
+    return c.room || 'N/A';
+  };
+
+  const getAssignedName = (c) => {
+    if (typeof c.assignedStaffId === 'object' && c.assignedStaffId?.userId?.name) {
+      return c.assignedStaffId.userId.name;
+    }
+    return c.assignedTo || null;
+  };
 
   const tabs = ['ALL', 'NEW', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD', 'RESOLVED', 'CLOSED'];
-  const filtered = tab === 'ALL' ? MOCK : MOCK.filter((c) => c.status === tab);
+  const filtered = tab === 'ALL' ? complaints : complaints.filter((c) => c.status === tab);
+
+  const unassignedCount = complaints.filter((c) => !c.assignedStaffId && c.status === 'NEW').length;
+  const newCount = complaints.filter((c) => c.status === 'NEW').length;
+  const resolvedCount = complaints.filter((c) => c.status === 'RESOLVED' || c.status === 'CLOSED').length;
 
   const priorityIcon = { LOW: 'south', MEDIUM: 'remove', HIGH: 'north', URGENT: 'priority_high' };
   const priorityColor = { LOW: 'text-on-surface-variant', MEDIUM: 'text-tertiary', HIGH: 'text-secondary', URGENT: 'text-error' };
@@ -39,10 +104,10 @@ const Complaints = () => {
     },
     {
       key: 'resident', label: 'Resident',
-      render: (v, row) => (
+      render: (_, row) => (
         <div>
-          <p className="font-medium text-on-surface text-body-sm">{v}</p>
-          <p className="text-label-sm text-on-surface-variant">{row.room}</p>
+          <p className="font-medium text-on-surface text-body-sm">{getResidentName(row)}</p>
+          <p className="text-label-sm text-on-surface-variant">{getRoomNumber(row)}</p>
         </div>
       ),
     },
@@ -50,8 +115,8 @@ const Complaints = () => {
     {
       key: 'priority', label: 'Priority',
       render: (v) => (
-        <span className={`flex items-center gap-1 font-semibold text-label-sm ${priorityColor[v]}`}>
-          <Icon name={priorityIcon[v]} size={14} />{v}
+        <span className={`flex items-center gap-1 font-semibold text-label-sm ${priorityColor[v] || 'text-on-surface-variant'}`}>
+          <Icon name={priorityIcon[v] || 'remove'} size={14} />{v}
         </span>
       ),
     },
@@ -65,7 +130,7 @@ const Complaints = () => {
       ),
     },
     { key: 'status', label: 'Status', render: (v) => <StatusBadge status={v} /> },
-    { key: 'assignedTo', label: 'Assigned To', render: (v) => v || <span className="text-outline italic">Unassigned</span> },
+    { key: 'assignedStaffId', label: 'Assigned To', render: (_, row) => getAssignedName(row) || <span className="text-outline italic">Unassigned</span> },
     {
       key: 'createdAt', label: 'Raised',
       render: (v) => new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
@@ -96,17 +161,25 @@ const Complaints = () => {
           <p className="text-body-md text-on-surface-variant">Track complaints, assign staff, enforce SLAs and monitor resolution ratings</p>
         </div>
         <div className="flex items-center gap-space-sm">
-          <button className="btn-secondary"><Icon name="engineering" size={18} />Manage Staff</button>
-          <button className="btn-primary" onClick={() => setNewOpen(true)}><Icon name="add_circle" size={18} />Log Complaint</button>
+          <button className="btn-secondary" onClick={fetchComplaints}>
+            <Icon name="refresh" size={18} />Refresh Queue
+          </button>
         </div>
       </div>
 
+      {error && (
+        <div className="p-3.5 bg-error-container text-on-error-container text-body-sm rounded-lg flex items-center justify-between">
+          <span>{error}</span>
+          <button className="text-xs font-semibold underline" onClick={fetchComplaints}>Retry</button>
+        </div>
+      )}
+
       {/* Metric strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-space-md">
-        <StatCard title="Breach Risk (<4h)" value={<span className="text-error">03</span>} icon="alarm" iconBg="bg-error-container" iconColor="text-on-error-container" subtitle="Immediate action" />
-        <StatCard title="Unassigned Queue" value="03" icon="assignment_late" iconBg="bg-secondary-fixed" iconColor="text-on-secondary-fixed" subtitle="Awaiting tech allocation" />
-        <StatCard title="Avg First Response" value={<span className="text-tertiary">38m</span>} icon="pace" iconBg="bg-tertiary-fixed" iconColor="text-on-tertiary-fixed" subtitle="12m below benchmark" />
-        <StatCard title="MTTR (Avg Resolve)" value={<span className="text-primary">4.2h</span>} icon="task_alt" iconBg="bg-surface-container" iconColor="text-primary" subtitle="Target < 6.0h" />
+        <StatCard title="Total Tickets" value={complaints.length} icon="assignment" iconBg="bg-surface-container" iconColor="text-primary" subtitle="All-time requests" />
+        <StatCard title="New Unassigned" value={unassignedCount} icon="assignment_late" iconBg="bg-secondary-fixed" iconColor="text-on-secondary-fixed" subtitle="Awaiting allocation" />
+        <StatCard title="Pending Action" value={newCount} icon="pace" iconBg="bg-tertiary-fixed" iconColor="text-on-tertiary-fixed" subtitle="Active new queue" />
+        <StatCard title="Total Resolved" value={resolvedCount} icon="task_alt" iconBg="bg-surface-container" iconColor="text-primary" subtitle="Resolved tickets" />
       </div>
 
       {/* Table */}
@@ -116,39 +189,39 @@ const Complaints = () => {
             <button key={t} onClick={() => setTab(t)}
               className={`px-3 py-1.5 rounded-lg text-label-md font-medium whitespace-nowrap transition-all
                 ${tab === t ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-              {t === 'ALL' ? `All (${MOCK.length})` : `${t.replace('_', ' ')} (${MOCK.filter((c) => c.status === t).length})`}
+              {t === 'ALL' ? `All (${complaints.length})` : `${t.replace('_', ' ')} (${complaints.filter((c) => c.status === t).length})`}
             </button>
           ))}
         </div>
-        <DataTable columns={columns} data={filtered} emptyMessage="No complaints found" emptyIcon="build" />
+        {loading ? (
+          <div className="flex items-center justify-center py-16 text-on-surface-variant gap-3">
+            <Icon name="progress_activity" size={24} className="animate-spin text-primary" />
+            <p className="text-body-md">Loading complaints queue...</p>
+          </div>
+        ) : (
+          <DataTable columns={columns} data={filtered} emptyMessage="No complaints found" emptyIcon="build" />
+        )}
       </div>
 
       {/* Detail modal */}
-      <Modal open={!!selected} onClose={() => setSelected(null)} title={`${selected?.requestNo} — ${selected?.title}`} size="lg"
-        footer={
-          <>
-            <button className="btn-secondary" onClick={() => setSelected(null)}>Close</button>
-            {selected && TRANSITIONS[selected.status]?.length > 0 && (
-              <button className="btn-primary"><Icon name="autorenew" size={16} />Update Status</button>
-            )}
-          </>
-        }>
+      <Modal open={!!selected} onClose={() => setSelected(null)} title={`${selected?.requestNo || ''} — ${selected?.title || ''}`} size="lg"
+        footer={<button className="btn-secondary" onClick={() => setSelected(null)}>Close</button>}>
         {selected && (
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               {[
                 { label: 'Request No', value: selected.requestNo },
                 { label: 'Category', value: selected.category },
-                { label: 'Resident', value: selected.resident },
-                { label: 'Room', value: selected.room },
+                { label: 'Resident', value: getResidentName(selected) },
+                { label: 'Room', value: getRoomNumber(selected) },
                 { label: 'Priority', value: <StatusBadge status={selected.priority} /> },
                 { label: 'Status', value: <StatusBadge status={selected.status} /> },
-                { label: 'Assigned To', value: selected.assignedTo || 'Unassigned' },
+                { label: 'Assigned To', value: getAssignedName(selected) || 'Unassigned' },
                 { label: 'Raised On', value: new Date(selected.createdAt).toLocaleDateString('en-IN') },
               ].map((f) => (
                 <div key={f.label}>
                   <p className="label">{f.label}</p>
-                  <p className="text-body-md text-on-surface font-medium">{f.value}</p>
+                  <div className="text-body-md text-on-surface font-medium">{f.value}</div>
                 </div>
               ))}
             </div>
@@ -156,18 +229,48 @@ const Complaints = () => {
               <p className="label">Description</p>
               <p className="text-body-md text-on-surface bg-surface-container-low p-3 rounded-lg">{selected.description}</p>
             </div>
+
+            {/* Status Transition Action */}
             {TRANSITIONS[selected.status]?.length > 0 && (
-              <div className="space-y-2">
-                <p className="label">Assign Staff & Move Status</p>
+              <div className="space-y-3 bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+                <p className="label font-semibold text-primary">Move Ticket Status</p>
+                <div>
+                  <input className="input text-sm mb-3" placeholder="Optional note for timeline (e.g. Technician assigned)..."
+                    value={updateNote} onChange={(e) => setUpdateNote(e.target.value)} />
+                </div>
                 <div className="flex gap-2 flex-wrap">
-                  <select className="input w-auto">
-                    <option>Ravi Kumar</option>
-                    <option>Suresh Nair</option>
-                  </select>
-                  {TRANSITIONS[selected.status].map((s) => (
-                    <button key={s} className="btn-secondary text-sm py-1.5">
-                      → {s.replace('_', ' ')}
+                  {TRANSITIONS[selected.status].map((nextState) => (
+                    <button key={nextState} disabled={updating} onClick={() => handleStatusUpdate(nextState)}
+                      className="btn-primary text-sm py-1.5 flex items-center gap-1.5">
+                      {updating ? <Icon name="progress_activity" size={14} className="animate-spin" /> : <Icon name="arrow_forward" size={14} />}
+                      Mark as {nextState.replace('_', ' ')}
                     </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Activity Timeline */}
+            {selected.timeline && selected.timeline.length > 0 && (
+              <div>
+                <p className="label mb-3">Activity Timeline</p>
+                <div className="relative pl-6 space-y-3">
+                  {selected.timeline.map((t, i) => (
+                    <div key={i} className="relative">
+                      <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                      {i < selected.timeline.length - 1 && (
+                        <div className="absolute -left-[21px] top-4 w-0.5 h-full bg-outline-variant" />
+                      )}
+                      <div className="bg-surface-container-low rounded-lg p-2.5">
+                        <div className="flex items-center justify-between mb-1">
+                          <StatusBadge status={t.status} />
+                          <span className="text-label-sm text-outline">
+                            {new Date(t.time).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-body-sm text-on-surface">{t.note}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -175,30 +278,9 @@ const Complaints = () => {
           </div>
         )}
       </Modal>
-
-      {/* New complaint */}
-      <Modal open={newOpen} onClose={() => setNewOpen(false)} title="Log New Complaint" size="lg"
-        footer={
-          <>
-            <button className="btn-secondary" onClick={() => setNewOpen(false)}>Cancel</button>
-            <button className="btn-primary"><Icon name="save" size={16} />Submit</button>
-          </>
-        }>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="label">Resident</label>
-              <select className="input"><option>Priya Sharma</option><option>Arjun Mehta</option></select></div>
-            <div><label className="label">Category</label>
-              <select className="input"><option>Electrical</option><option>Plumbing</option><option>Cleaning</option><option>Wi-Fi</option><option>AC</option><option>Other</option></select></div>
-            <div><label className="label">Priority</label>
-              <select className="input"><option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>URGENT</option></select></div>
-          </div>
-          <div><label className="label">Title</label><input className="input" placeholder="Brief title of the issue" /></div>
-          <div><label className="label">Description</label><textarea className="input" rows={3} placeholder="Describe the issue in detail..." /></div>
-        </div>
-      </Modal>
     </div>
   );
 };
 
 export default Complaints;
+
