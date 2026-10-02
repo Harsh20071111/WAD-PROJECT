@@ -5,8 +5,53 @@ const { restrictTo } = require('../middleware/roleMiddleware');
 const Room = require('../models/Room');
 const Bed = require('../models/Bed');
 const Resident = require('../models/Resident');
+const PG = require('../models/PG');
 const mongoose = require('mongoose');
 
+// ─── Public endpoint (NO auth required) ────────────────────────────────────────
+// GET /api/rooms/public — returns room + bed availability for the demo PG
+router.get('/public', async (req, res, next) => {
+  try {
+    // Find the first (demo) PG
+    const pg = await PG.findOne().lean();
+    if (!pg) return res.json({ success: true, data: [] });
+
+    const rooms = await Room.find({ pgId: pg._id, isActive: true })
+      .sort({ floor: 1, roomNumber: 1 })
+      .select('roomNumber floor type capacity rent amenities')
+      .lean();
+
+    const beds = await Bed.find({ pgId: pg._id })
+      .select('roomId status')
+      .lean();
+
+    // Group beds by room
+    const bedsByRoom = {};
+    for (const bed of beds) {
+      const key = String(bed.roomId);
+      if (!bedsByRoom[key]) bedsByRoom[key] = { total: 0, available: 0 };
+      bedsByRoom[key].total += 1;
+      if (bed.status === 'AVAILABLE') bedsByRoom[key].available += 1;
+    }
+
+    const data = rooms.map((room) => {
+      const counts = bedsByRoom[String(room._id)] || { total: room.capacity, available: 0 };
+      return {
+        roomNumber: room.roomNumber,
+        floor: room.floor,
+        type: room.type,
+        rent: room.rent,
+        amenities: room.amenities || [],
+        totalBeds: counts.total,
+        availableBeds: counts.available,
+      };
+    });
+
+    res.json({ success: true, data });
+  } catch (error) { next(error); }
+});
+
+// ─── All routes below require authentication ──────────────────────────────────
 router.use(protect);
 
 router.get('/', async (req, res, next) => {
