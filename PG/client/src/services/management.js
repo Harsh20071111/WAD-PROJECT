@@ -6,6 +6,7 @@ export const getComplaints = async () => data(await api.get('/complaints'));
 export const createComplaint = async (payload) => data(await api.post('/complaints', payload));
 export const updateComplaint = async (id, payload) => data(await api.patch(`/complaints/${id}`, payload));
 export const getStaff = async () => data(await api.get('/staff'));
+export const createStaff = async (payload) => data(await api.post('/staff', payload));
 export const getResidents = async () => data(await api.get('/residents'));
 export const createResident = async (payload) => data(await api.post('/residents', payload));
 export const bulkImportResidents = async (payload) => data(await api.post('/residents/bulk', payload));
