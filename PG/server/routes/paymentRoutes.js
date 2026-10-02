@@ -41,6 +41,52 @@ router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+router.post('/custom', restrictTo('ADMIN'), async (req, res, next) => {
+  try {
+    const { residentId, month, amount } = req.body;
+    if (!residentId || !month || amount === undefined) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    
+    const resident = await Resident.findOne({ _id: residentId, pgId: req.user.pgId });
+    if (!resident) return res.status(404).json({ success: false, message: 'Resident is not part of this PG.' });
+
+    const [year, m] = month.split('-');
+    const dueDate = new Date(year, parseInt(m) - 1, 5);
+
+    let payment = await Payment.findOne({ residentId, month });
+    
+    if (payment) {
+      payment.amount = amount;
+      payment.lineItems = [{ type: 'ADJUSTMENT', label: 'Custom Assigned Amount', amount }];
+      
+      if (payment.paidAmount >= payment.amount) {
+        payment.status = 'PAID';
+      } else if (payment.paidAmount > 0) {
+        payment.status = 'PARTIALLY_PAID';
+      } else {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        payment.status = (today > dueDate) ? 'OVERDUE' : 'PENDING';
+      }
+      await payment.save();
+      await notify(resident.userId, 'PAYMENT_UPDATED', 'Payment amount updated', `Your ${month} payment has been updated to ₹${amount}.`, '/resident/payments');
+    } else {
+      payment = await Payment.create({ 
+        pgId: req.user.pgId, 
+        residentId, 
+        month, 
+        amount, 
+        dueDate,
+        lineItems: [{ type: 'RENT', label: 'Custom Assigned Rent', amount }]
+      });
+      await notify(resident.userId, 'PAYMENT_CREATED', 'New payment due', `A custom payment for ${month} of ₹${amount} is now due.`, '/resident/payments');
+    }
+    
+    res.status(200).json({ success: true, data: payment });
+  } catch (error) { next(error); }
+});
+
 router.post('/:id/order', restrictTo('RESIDENT'), async (req, res, next) => {
   try {
     if (!razorpay) return res.status(503).json({ success: false, message: 'Razorpay is not configured on the server.' });

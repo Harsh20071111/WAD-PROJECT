@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-import { getPayments, runRent, applyLateFees, recordManualPayment, updateLateFeeConfig, getMyPG, getResidents } from '../../services/management';
+import { getPayments, runRent, applyLateFees, recordManualPayment, updateLateFeeConfig, getMyPG, getResidents, createCustomPayment } from '../../services/management';
 
 const Payments = () => {
   const [items, setItems] = useState([]);
@@ -15,7 +15,9 @@ const Payments = () => {
 
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
+  const [showCustomModal, setShowCustomModal] = useState(false);
   const [manualForm, setManualForm] = useState({ residentId: '', amount: '', mode: 'UPI', utr: '' });
+  const [customForm, setCustomForm] = useState({ residentId: '', month: new Date().toISOString().slice(0, 7), amount: '' });
 
   const load = async () => {
     try {
@@ -103,6 +105,25 @@ const Payments = () => {
     }
   };
 
+  const handleCustomPayment = async (e) => {
+    e.preventDefault();
+    setActionLoading('custom');
+    try {
+      await createCustomPayment({
+        ...customForm,
+        amount: Number(customForm.amount)
+      });
+      setShowCustomModal(false);
+      setCustomForm({ residentId: '', month: new Date().toISOString().slice(0, 7), amount: '' });
+      setActionMessage('Custom payment set successfully.');
+      load();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to set custom payment');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
   const getDaysOverdue = (payment) => {
     if (payment.status === 'PAID') return 0;
     const due = new Date(payment.dueDate);
@@ -124,6 +145,9 @@ const Payments = () => {
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setShowConfigModal(true)} className="btn-secondary">
             <Icon name="settings" size={18} /> Config Late Fees
+          </button>
+          <button onClick={() => setShowCustomModal(true)} className="btn-secondary">
+            <Icon name="edit_document" size={18} /> Set Custom Amount
           </button>
           <button onClick={handleApplyLateFees} disabled={!!actionLoading} className="btn-secondary">
             {actionLoading === 'late' ? 'Applying...' : 'Apply Late Fees'}
@@ -151,6 +175,7 @@ const Payments = () => {
               <th className="p-3">Due Date</th>
               <th className="p-3">Overdue Aging</th>
               <th className="p-3">Status</th>
+              <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -172,10 +197,22 @@ const Payments = () => {
                     ) : '-'}
                   </td>
                   <td className="p-3"><StatusBadge status={item.status} /></td>
+                  <td className="p-3 text-right">
+                    <button
+                      title="Edit Amount"
+                      onClick={() => {
+                        setCustomForm({ residentId: item.residentId?._id, month: item.month, amount: item.amount });
+                        setShowCustomModal(true);
+                      }}
+                      className="text-primary hover:bg-primary-container p-2 rounded-full transition-colors"
+                    >
+                      <Icon name="edit" size={18} />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
-            {!items.length && <tr><td colSpan="7" className="p-10 text-center text-on-surface-variant">No payments found.</td></tr>}
+            {!items.length && <tr><td colSpan="8" className="p-10 text-center text-on-surface-variant">No payments found.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -230,6 +267,33 @@ const Payments = () => {
           <div className="flex justify-end gap-2 pt-4 border-t border-outline-variant/30">
             <button type="button" className="btn-secondary" onClick={() => setShowManualModal(false)}>Cancel</button>
             <button type="submit" disabled={actionLoading === 'manual'} className="btn-primary">Record Payment</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={showCustomModal} onClose={() => setShowCustomModal(false)} title="Set Custom Invoice Amount">
+        <form onSubmit={handleCustomPayment} className="space-y-4">
+          <div>
+            <label className="label">Resident</label>
+            <select required className="input" value={customForm.residentId} onChange={e => setCustomForm({...customForm, residentId: e.target.value})}>
+              <option value="">Select a resident...</option>
+              {residents.map(r => (
+                <option key={r._id} value={r._id}>{r.userId?.name} (Room {r.roomId?.roomNumber})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">Month</label>
+            <input type="month" required className="input" value={customForm.month} onChange={e => setCustomForm({...customForm, month: e.target.value})} />
+          </div>
+          <div>
+            <label className="label">Custom Amount (₹)</label>
+            <input type="number" required min="0" className="input" value={customForm.amount} onChange={e => setCustomForm({...customForm, amount: e.target.value})} />
+            <p className="text-xs text-on-surface-variant mt-1">This will override any existing unpaid invoice for this month.</p>
+          </div>
+          <div className="flex justify-end gap-2 pt-4 border-t border-outline-variant/30">
+            <button type="button" className="btn-secondary" onClick={() => setShowCustomModal(false)}>Cancel</button>
+            <button type="submit" disabled={actionLoading === 'custom'} className="btn-primary">Set Amount</button>
           </div>
         </form>
       </Modal>

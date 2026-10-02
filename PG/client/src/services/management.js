@@ -11,6 +11,7 @@ export const createResident = async (payload) => data(await api.post('/residents
 export const bulkImportResidents = async (payload) => data(await api.post('/residents/bulk', payload));
 export const getPayments = async () => data(await api.get('/payments'));
 export const createPayment = async (payload) => data(await api.post('/payments', payload));
+export const createCustomPayment = async (payload) => data(await api.post('/payments/custom', payload));
 export const getMyPayments = async () => data(await api.get('/payments/mine'));
 export const createPaymentOrder = async (id) => data(await api.post(`/payments/${id}/order`));
 export const verifyPayment = async (id, payload) => data(await api.post(`/payments/${id}/verify`, payload));
