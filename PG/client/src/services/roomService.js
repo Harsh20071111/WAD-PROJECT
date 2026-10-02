@@ -26,3 +26,8 @@ export const checkoutBed = async (roomId, bedId) => {
   const response = await api.post(`/rooms/${roomId}/beds/${bedId}/checkout`);
   return response.data;
 };
+
+export const createRoom = async (roomData) => {
+  const response = await api.post('/rooms', roomData);
+  return response.data;
+};

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getRooms, updateRoom, assignBed, checkoutBed } = require('../controllers/roomController');
+const { getRooms, updateRoom, assignBed, checkoutBed, createRoom } = require('../controllers/roomController');
 const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
 const Room = require('../models/Room');
@@ -22,15 +22,6 @@ router.get('/', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
-  try {
-    const { floor, roomNumber, type, capacity, rent, amenities = [] } = req.body;
-    const room = await Room.create({ pgId: req.user.pgId, floor, roomNumber, type, capacity, rent, amenities });
-    const beds = await Bed.insertMany(Array.from({ length: capacity }, (_, index) => ({
-      pgId: req.user.pgId, roomId: room._id, label: String.fromCharCode(65 + index), status: 'AVAILABLE'
-    })));
-    res.status(201).json({ success: true, data: { ...room.toObject(), beds } });
-  } catch (error) { next(error); }
-});
+router.post('/', restrictTo('ADMIN'), createRoom);
 
 module.exports = router;

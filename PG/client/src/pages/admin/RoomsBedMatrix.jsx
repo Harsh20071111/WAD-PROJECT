@@ -3,9 +3,18 @@ import StatCard from '../../components/StatCard';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-import { getRoomsMatrix, updateRoom, assignBed, checkoutBed } from '../../services/roomService';
+import { getRoomsMatrix, updateRoom, assignBed, checkoutBed, createRoom } from '../../services/roomService';
 
 const typeLabels = { SINGLE: '1-Sharing', DOUBLE: '2-Sharing', TRIPLE: '3-Sharing', QUAD: '4-Sharing' };
+
+const defaultRoomData = {
+  roomNumber: '',
+  floor: '1',
+  type: 'DOUBLE',
+  capacity: 2,
+  rent: '',
+  amenities: ['Wi-Fi', 'Attached Bathroom']
+};
 
 const RoomsBedMatrix = () => {
   const [floors, setFloors] = useState([]);
@@ -23,7 +32,138 @@ const RoomsBedMatrix = () => {
     name: '', phone: '', email: '', checkInDate: '', emergencyContact: { name: '', relation: '', phone: '' }
   });
   
+  // Add Room modal state & form
   const [addRoomOpen, setAddRoomOpen] = useState(false);
+  const [newRoomData, setNewRoomData] = useState(defaultRoomData);
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmittingRoom, setIsSubmittingRoom] = useState(false);
+  const [addRoomError, setAddRoomError] = useState(null);
+  const [toast, setToast] = useState(null); // { type: 'success' | 'error', text: '' }
+
+  // Auto-dismiss toast after 5s
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const handleTypeChange = (newType) => {
+    const capacityMap = { SINGLE: 1, DOUBLE: 2, TRIPLE: 3, QUAD: 4 };
+    setNewRoomData(prev => ({
+      ...prev,
+      type: newType,
+      capacity: capacityMap[newType] || prev.capacity
+    }));
+    if (formErrors.type) {
+      setFormErrors(prev => ({ ...prev, type: null }));
+    }
+  };
+
+  const handleAmenityToggle = (amenity) => {
+    setNewRoomData(prev => {
+      const exists = prev.amenities.includes(amenity);
+      return {
+        ...prev,
+        amenities: exists
+          ? prev.amenities.filter(a => a !== amenity)
+          : [...prev.amenities, amenity]
+      };
+    });
+  };
+
+  const handleCloseAddRoomModal = () => {
+    if (isSubmittingRoom) return;
+    setAddRoomOpen(false);
+    setNewRoomData(defaultRoomData);
+    setFormErrors({});
+    setAddRoomError(null);
+  };
+
+  const validateNewRoom = () => {
+    const errors = {};
+    const trimmedNumber = newRoomData.roomNumber ? newRoomData.roomNumber.toString().trim() : '';
+    if (!trimmedNumber) {
+      errors.roomNumber = 'Room number is required';
+    } else {
+      // Check uniqueness against loaded rooms
+      const exists = floors
+        .flatMap(f => f.rooms)
+        .some(r => r.number.toString().trim().toLowerCase() === trimmedNumber.toLowerCase());
+      if (exists) {
+        errors.roomNumber = `Room ${trimmedNumber} already exists`;
+      }
+    }
+
+    if (newRoomData.floor === '' || newRoomData.floor === undefined || isNaN(Number(newRoomData.floor)) || Number(newRoomData.floor) < 0) {
+      errors.floor = 'Valid floor number is required (0 or higher)';
+    }
+
+    if (!['SINGLE', 'DOUBLE', 'TRIPLE', 'QUAD'].includes(newRoomData.type)) {
+      errors.type = 'Select a valid room type';
+    }
+
+    const cap = Number(newRoomData.capacity);
+    if (!cap || isNaN(cap) || cap < 1) {
+      errors.capacity = 'Capacity must be at least 1 bed';
+    }
+
+    if (newRoomData.rent === '' || newRoomData.rent === undefined || isNaN(Number(newRoomData.rent)) || Number(newRoomData.rent) < 0) {
+      errors.rent = 'Valid rent per bed is required (₹0 or higher)';
+    }
+
+    return errors;
+  };
+
+  const handleCreateRoom = async (e) => {
+    if (e) e.preventDefault();
+    if (isSubmittingRoom) return;
+
+    const errors = validateNewRoom();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors({});
+    setAddRoomError(null);
+    setIsSubmittingRoom(true);
+
+    const payload = {
+      roomNumber: newRoomData.roomNumber.toString().trim(),
+      floor: Number(newRoomData.floor),
+      type: newRoomData.type,
+      capacity: Number(newRoomData.capacity),
+      rent: Number(newRoomData.rent),
+      amenities: newRoomData.amenities
+    };
+
+    try {
+      const response = await createRoom(payload);
+      
+      // Refresh rooms matrix from server
+      await fetchRooms();
+
+      // Show success toast
+      setToast({
+        type: 'success',
+        text: response?.message || `Room ${payload.roomNumber} added successfully.`
+      });
+
+      // Switch active floor tab to the new room's floor if currently filtered
+      setActiveFloor(prev => (prev === 'all' ? 'all' : `f${payload.floor}`));
+
+      // Reset form and close modal
+      setNewRoomData(defaultRoomData);
+      setAddRoomOpen(false);
+    } catch (err) {
+      console.error('Failed to create room:', err);
+      const serverMessage = err.response?.data?.message || err.message || 'Failed to save room. Please try again.';
+      setAddRoomError(serverMessage);
+    } finally {
+      setIsSubmittingRoom(false);
+    }
+  };
 
   const fetchRooms = async () => {
     try {
@@ -100,6 +240,32 @@ const RoomsBedMatrix = () => {
 
   return (
     <div className="flex flex-col w-full space-y-space-lg">
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`flex items-center justify-between p-4 rounded-xl border ${
+            toast.type === 'success'
+              ? 'bg-primary-fixed/20 border-primary/40 text-on-surface'
+              : 'bg-error-container border-error/40 text-on-error-container'
+          } shadow-sm transition-all animate-fade-in`}
+        >
+          <div className="flex items-center gap-3">
+            <Icon
+              name={toast.type === 'success' ? 'check_circle' : 'error'}
+              size={22}
+              className={toast.type === 'success' ? 'text-primary' : 'text-error'}
+            />
+            <span className="font-semibold text-body-md">{toast.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="p-1 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+      )}
       <div className="page-header">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -383,18 +549,200 @@ const RoomsBedMatrix = () => {
       {/* Add Room modal */}
       <Modal
         open={addRoomOpen}
-        onClose={() => setAddRoomOpen(false)}
+        onClose={handleCloseAddRoomModal}
         title="Add New Room"
+        size="lg"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddRoomOpen(false)}>Cancel</button>
-            <button className="btn-primary"><Icon name="save" size={16} />Save Room</button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleCloseAddRoomModal}
+              disabled={isSubmittingRoom}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleCreateRoom}
+              disabled={isSubmittingRoom}
+            >
+              <Icon
+                name={isSubmittingRoom ? "refresh" : "save"}
+                size={16}
+                className={isSubmittingRoom ? "animate-spin" : ""}
+              />
+              {isSubmittingRoom ? 'Saving...' : 'Save Room'}
+            </button>
           </>
         }
       >
-        <div className="space-y-4">
-          <p className="text-body-sm text-on-surface-variant">Add new room functionality is managed separately.</p>
-        </div>
+        <form onSubmit={handleCreateRoom} className="space-y-4">
+          {addRoomError && (
+            <div className="p-3 rounded-lg bg-error-container/40 border border-error/40 text-error flex items-start gap-2 text-body-sm">
+              <Icon name="error" size={18} className="shrink-0 mt-0.5" />
+              <span>{addRoomError}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Room Number */}
+            <div>
+              <label className="label">Room Number *</label>
+              <input
+                type="text"
+                className={`input ${formErrors.roomNumber ? 'border-error ring-1 ring-error' : ''}`}
+                placeholder="e.g. 105"
+                value={newRoomData.roomNumber}
+                onChange={(e) => {
+                  setNewRoomData({ ...newRoomData, roomNumber: e.target.value });
+                  if (formErrors.roomNumber) setFormErrors({ ...formErrors, roomNumber: null });
+                }}
+                disabled={isSubmittingRoom}
+                required
+              />
+              {formErrors.roomNumber && (
+                <p className="text-xs text-error mt-1">{formErrors.roomNumber}</p>
+              )}
+            </div>
+
+            {/* Floor */}
+            <div>
+              <label className="label">Floor *</label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                className={`input ${formErrors.floor ? 'border-error ring-1 ring-error' : ''}`}
+                placeholder="e.g. 1 (0 for Ground Floor)"
+                value={newRoomData.floor}
+                onChange={(e) => {
+                  setNewRoomData({ ...newRoomData, floor: e.target.value });
+                  if (formErrors.floor) setFormErrors({ ...formErrors, floor: null });
+                }}
+                disabled={isSubmittingRoom}
+                required
+              />
+              {formErrors.floor && (
+                <p className="text-xs text-error mt-1">{formErrors.floor}</p>
+              )}
+            </div>
+
+            {/* Sharing Type */}
+            <div>
+              <label className="label">Sharing Type *</label>
+              <select
+                className={`input ${formErrors.type ? 'border-error ring-1 ring-error' : ''}`}
+                value={newRoomData.type}
+                onChange={(e) => handleTypeChange(e.target.value)}
+                disabled={isSubmittingRoom}
+              >
+                <option value="SINGLE">Single (1-Sharing)</option>
+                <option value="DOUBLE">Double (2-Sharing)</option>
+                <option value="TRIPLE">Triple (3-Sharing)</option>
+                <option value="QUAD">Quad (4-Sharing)</option>
+              </select>
+              {formErrors.type && (
+                <p className="text-xs text-error mt-1">{formErrors.type}</p>
+              )}
+            </div>
+
+            {/* Number of Beds / Capacity */}
+            <div>
+              <label className="label">Number of Beds (Capacity) *</label>
+              <input
+                type="number"
+                min="1"
+                max="8"
+                className={`input ${formErrors.capacity ? 'border-error ring-1 ring-error' : ''}`}
+                value={newRoomData.capacity}
+                onChange={(e) => {
+                  setNewRoomData({ ...newRoomData, capacity: parseInt(e.target.value, 10) || '' });
+                  if (formErrors.capacity) setFormErrors({ ...formErrors, capacity: null });
+                }}
+                disabled={isSubmittingRoom}
+                required
+              />
+              {formErrors.capacity ? (
+                <p className="text-xs text-error mt-1">{formErrors.capacity}</p>
+              ) : (
+                <p className="text-xs text-on-surface-variant mt-1">
+                  Generates Beds: {Array.from({ length: Number(newRoomData.capacity) || 0 }, (_, i) => String.fromCharCode(65 + i)).join(', ') || 'None'}
+                </p>
+              )}
+            </div>
+
+            {/* Rent per Bed */}
+            <div>
+              <label className="label">Rent Per Bed (₹/month) *</label>
+              <input
+                type="number"
+                min="0"
+                step="100"
+                className={`input ${formErrors.rent ? 'border-error ring-1 ring-error' : ''}`}
+                placeholder="e.g. 7000"
+                value={newRoomData.rent}
+                onChange={(e) => {
+                  setNewRoomData({ ...newRoomData, rent: e.target.value });
+                  if (formErrors.rent) setFormErrors({ ...formErrors, rent: null });
+                }}
+                disabled={isSubmittingRoom}
+                required
+              />
+              {formErrors.rent && (
+                <p className="text-xs text-error mt-1">{formErrors.rent}</p>
+              )}
+            </div>
+
+            {/* Room Status Indicator */}
+            <div>
+              <label className="label">Initial Room Status</label>
+              <div className="h-[42px] px-3 py-2 bg-surface-container-low rounded-lg border border-outline-variant/30 flex items-center justify-between text-body-sm">
+                <span className="text-on-surface font-medium">Active (All beds vacant)</span>
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary-fixed text-on-primary-fixed">AVAILABLE</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Amenities checklist */}
+          <div>
+            <label className="label mb-1.5 block">Room Amenities</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+              {[
+                'Wi-Fi',
+                'Attached Bathroom',
+                'AC',
+                'Balcony',
+                'Geyser',
+                'Cupboard',
+                'Study Table',
+                'TV'
+              ].map((amenity) => {
+                const isChecked = newRoomData.amenities.includes(amenity);
+                return (
+                  <label
+                    key={amenity}
+                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer text-body-sm transition-colors ${
+                      isChecked
+                        ? 'bg-primary-fixed/20 border-primary/40 text-on-surface font-medium'
+                        : 'bg-surface-container-low border-outline-variant/30 text-on-surface-variant hover:bg-surface-container'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-primary rounded"
+                      checked={isChecked}
+                      onChange={() => handleAmenityToggle(amenity)}
+                      disabled={isSubmittingRoom}
+                    />
+                    <span className="text-xs">{amenity}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </form>
       </Modal>
     </div>
   );

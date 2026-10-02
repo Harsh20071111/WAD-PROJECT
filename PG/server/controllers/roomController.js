@@ -3,6 +3,7 @@ const Room = require('../models/Room');
 const Bed = require('../models/Bed');
 const Resident = require('../models/Resident');
 const User = require('../models/User');
+const PG = require('../models/PG');
 
 // @desc    Get rooms grouped by floor (matrix format)
 // @route   GET /api/rooms
@@ -35,7 +36,7 @@ const getRooms = asyncHandler(async (req, res) => {
         id: b._id,
         label: b.label,
         status: b.status,
-        resident: b.residentId ? b.residentId.userId.name : null,
+        resident: b.residentId?.userId?.name || null,
         residentDetails: b.residentId || null
       }))
     });
@@ -176,4 +177,107 @@ const checkoutBed = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Person checked out successfully' });
 });
 
-module.exports = { getRooms, updateRoom, assignBed, checkoutBed };
+// @desc    Create a new room and generate its beds
+// @route   POST /api/rooms
+// @access  Private (Admin)
+const createRoom = asyncHandler(async (req, res) => {
+  let pgId = req.user?.pgId;
+  if (!pgId) {
+    const defaultPg = await PG.findOne();
+    if (defaultPg) {
+      pgId = defaultPg._id;
+    } else {
+      res.status(400);
+      throw new Error('No PG property associated with user');
+    }
+  }
+
+  const { floor, roomNumber, type, capacity, rent, amenities = [] } = req.body;
+
+  // Validation
+  if (floor === undefined || floor === null || floor === '' || isNaN(Number(floor)) || Number(floor) < 0) {
+    res.status(400);
+    throw new Error('Valid floor number is required (0 or greater)');
+  }
+
+  if (!roomNumber || !roomNumber.toString().trim()) {
+    res.status(400);
+    throw new Error('Room number is required');
+  }
+
+  const trimmedRoomNumber = roomNumber.toString().trim();
+
+  const validTypes = ['SINGLE', 'DOUBLE', 'TRIPLE', 'QUAD'];
+  const upperType = type ? type.toString().toUpperCase() : '';
+  if (!validTypes.includes(upperType)) {
+    res.status(400);
+    throw new Error('Room type must be SINGLE, DOUBLE, TRIPLE, or QUAD');
+  }
+
+  const numCapacity = parseInt(capacity, 10);
+  if (!numCapacity || isNaN(numCapacity) || numCapacity < 1) {
+    res.status(400);
+    throw new Error('Capacity must be at least 1 bed');
+  }
+
+  const numRent = Number(rent);
+  if (rent === undefined || rent === null || rent === '' || isNaN(numRent) || numRent < 0) {
+    res.status(400);
+    throw new Error('Valid rent per bed is required (0 or greater)');
+  }
+
+  // Check uniqueness within the PG
+  const existingRoom = await Room.findOne({
+    pgId,
+    roomNumber: trimmedRoomNumber
+  });
+
+  if (existingRoom) {
+    res.status(400);
+    throw new Error(`Room number "${trimmedRoomNumber}" already exists on Floor ${existingRoom.floor}`);
+  }
+
+  // Clean amenities
+  const sanitizedAmenities = Array.isArray(amenities)
+    ? amenities.map(a => a.toString().trim()).filter(Boolean)
+    : [];
+
+  // Create room
+  const room = await Room.create({
+    pgId,
+    floor: Number(floor),
+    roomNumber: trimmedRoomNumber,
+    type: upperType,
+    capacity: numCapacity,
+    rent: numRent,
+    amenities: sanitizedAmenities,
+    isActive: true
+  });
+
+  // Create beds
+  let beds = [];
+  try {
+    const bedDocs = Array.from({ length: numCapacity }, (_, index) => ({
+      pgId,
+      roomId: room._id,
+      label: index < 26 ? String.fromCharCode(65 + index) : `Bed ${index + 1}`,
+      status: 'AVAILABLE',
+      residentId: null
+    }));
+    beds = await Bed.insertMany(bedDocs);
+  } catch (bedErr) {
+    await Room.findByIdAndDelete(room._id).catch(() => {});
+    throw bedErr;
+  }
+
+  res.status(201).json({
+    success: true,
+    message: `Room ${room.roomNumber} created successfully`,
+    data: {
+      ...room.toObject(),
+      beds
+    }
+  });
+});
+
+module.exports = { getRooms, updateRoom, assignBed, checkoutBed, createRoom };
