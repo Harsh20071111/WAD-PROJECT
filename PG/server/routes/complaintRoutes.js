@@ -43,19 +43,39 @@ router.post('/', restrictTo('RESIDENT'), async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
-router.patch('/:id', restrictTo('ADMIN', 'STAFF'), async (req, res, next) => {
+router.patch('/:id', restrictTo('ADMIN', 'STAFF', 'RESIDENT'), async (req, res, next) => {
   try {
-    const complaint = await Complaint.findOne({ _id: req.params.id, pgId: req.user.pgId });
-    if (!complaint) return res.status(404).json({ success: false, message: 'Request not found.' });
+    const filter = { _id: req.params.id, pgId: req.user.pgId };
+    
+    // If resident, ensure they own it
+    if (req.user.role === 'RESIDENT') {
+      const resident = await Resident.findOne({ userId: req.user._id });
+      if (!resident) return res.status(403).json({ success: false, message: 'Unauthorized' });
+      filter.residentId = resident._id;
+    }
+    
+    const complaint = await Complaint.findOne(filter);
+    if (!complaint) return res.status(404).json({ success: false, message: 'Request not found or unauthorized.' });
+    
     const oldStatus = complaint.status;
-    if (req.body.assignedStaffId !== undefined) {
+    
+    if (req.body.assignedStaffId !== undefined && req.user.role === 'ADMIN') {
       const staff = await Staff.findOne({ _id: req.body.assignedStaffId, pgId: req.user.pgId, isActive: true });
       if (!staff) return res.status(400).json({ success: false, message: 'Staff member is not valid for this PG.' });
       complaint.assignedStaffId = staff._id;
       complaint.status = complaint.status === 'NEW' ? 'ASSIGNED' : complaint.status;
       await notify(staff.userId, 'COMPLAINT_ASSIGNED', 'Request assigned to you', `${complaint.requestNo}: ${complaint.title}`, '/staff/tasks');
     }
-    if (req.body.status) complaint.status = req.body.status;
+    
+    // Residents can only resolve their own tickets
+    if (req.user.role === 'RESIDENT') {
+      if (req.body.status !== 'RESOLVED') {
+        return res.status(403).json({ success: false, message: 'Residents can only mark requests as resolved.' });
+      }
+      complaint.status = 'RESOLVED';
+    } else if (req.body.status) {
+      complaint.status = req.body.status;
+    }
     await complaint.save();
     if (oldStatus !== complaint.status) await ComplaintUpdate.create({ complaintId: complaint._id, fromStatus: oldStatus, toStatus: complaint.status, note: req.body.note || '', actorId: req.user._id });
     const resident = await Resident.findById(complaint.residentId);
