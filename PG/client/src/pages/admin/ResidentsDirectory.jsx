@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
@@ -16,7 +17,9 @@ const ResidentsDirectory = () => {
   const [loading, setLoading] = useState(false);
 
   const load = async () => { try { setResidents(await getResidents()); } catch (err) { setError(err.response?.data?.message || 'Unable to load residents.'); } };
+  const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => { load(); const timer = setInterval(load, 10000); return () => clearInterval(timer); }, []);
+  useEffect(() => { if (searchParams.get('action') === 'addResident') { setOpen(true); setSearchParams({}, { replace: true }); } }, [searchParams, setSearchParams]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -124,10 +127,10 @@ const ResidentsDirectory = () => {
       {/* Add Resident Modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Create Resident Account" size="lg" footer={<><button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button><button type="submit" form="resident-form" className="btn-primary" disabled={loading}>{loading ? 'Creating...' : 'Create Resident'}</button></>}>
         <form id="resident-form" onSubmit={submit} className="grid grid-cols-2 gap-4">
-          <label className="label">Full name<input className="input mt-1 w-full" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-          <label className="label">Email<input className="input mt-1 w-full" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-          <label className="label">Phone<input className="input mt-1 w-full" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-          <label className="label">Temporary password<input className="input mt-1 w-full" required type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
+          <label className="label">Full name<input className="input mt-1 w-full" required autoComplete="off" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+          <label className="label">Email<input className="input mt-1 w-full" type="email" required autoComplete="new-password" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
+          <label className="label">Phone<input className="input mt-1 w-full" required autoComplete="off" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
+          <label className="label">Temporary password<input className="input mt-1 w-full" required type="password" autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
           <label className="label">Gender<select className="input mt-1 w-full" value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}><option>MALE</option><option>FEMALE</option><option>OTHER</option></select></label>
           <label className="label">Monthly rent<input className="input mt-1 w-full" required type="number" min="0" value={form.monthlyRent} onChange={(e) => setForm({ ...form, monthlyRent: e.target.value })} /></label>
           <label className="label">Security deposit<input className="input mt-1 w-full" type="number" min="0" value={form.securityDeposit} onChange={(e) => setForm({ ...form, securityDeposit: e.target.value })} /></label>
