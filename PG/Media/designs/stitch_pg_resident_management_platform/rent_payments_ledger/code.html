@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#855300","on-tertiary-fixed-variant":"#004b73","surface-tint":"#006a63","surface-container-lowest":"#ffffff","outline":"#6e7977","outline-variant":"#bdc9c6","on-tertiary-fixed":"#001d31","on-tertiary":"#ffffff","tertiary-fixed-dim":"#93ccff","surface-dim":"#d2d9f4","on-error-container":"#93000a","primary":"#005c55","on-surface-variant":"#3e4947","primary-container":"#0f766e","inverse-surface":"#283044","surface-container":"#eaedff","secondary-fixed":"#ffddb8","on-primary":"#ffffff","tertiary-fixed":"#cce5ff","on-secondary":"#ffffff","tertiary-container":"#006fa8","on-error":"#ffffff","primary-fixed":"#9cf2e8","secondary-container":"#fea619","secondary-fixed-dim":"#ffb95f","on-primary-fixed-variant":"#00504a","error-container":"#ffdad6","surface":"#faf8ff","surface-variant":"#dae2fd","on-secondary-container":"#684000","on-background":"#131b2e","tertiary":"#005683","on-tertiary-container":"#dbecff","background":"#faf8ff","on-surface":"#131b2e","on-primary-container":"#a3faef","inverse-on-surface":"#eef0ff","surface-bright":"#faf8ff","on-secondary-fixed":"#2a1700","surface-container-highest":"#dae2fd","surface-container-low":"#f2f3ff","primary-fixed-dim":"#80d5cb","inverse-primary":"#80d5cb","on-secondary-fixed-variant":"#653e00","error":"#ba1a1a","surface-container-high":"#e2e7ff","on-primary-fixed":"#00201d"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2rem","gutter":"1rem","space-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","margin":"1.5rem"},"fontFamily":{"headline-md":["Plus Jakarta Sans"],"body-md":["Inter"],"numeric-data":["Inter"],"label-md":["Inter"],"headline-xl":["Plus Jakarta Sans"],"body-lg":["Inter"],"label-sm":["Inter"],"headline-lg":["Plus Jakarta Sans"],"body-sm":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"]},"fontSize":{"headline-md":["18px",{"lineHeight":"26px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"numeric-data":["14px",{"lineHeight":"20px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"600"}],"headline-xl":["30px",{"lineHeight":"38px","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"headline-xl-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"headline-lg-mobile":["20px",{"lineHeight":"28px","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-60 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none"><div class="flex flex-col min-h-0"><div class="h-16 px-space-md border-b border-outline-variant flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">apartment</span></div><div class="flex flex-col"><span class="font-headline-md text-[16px] font-bold text-primary tracking-tight leading-tight">NestOps</span><span class="font-label-sm text-label-sm text-on-surface-variant">NiwasPG ERP v2.4</span></div></div><span class="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold uppercase tracking-wider">HQ</span></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md space-y-space-lg"><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Overview</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span class="font-body-md text-body-md">Dashboard</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Residents &amp; Rooms</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="rooms-and-bed-grid" href="#"><span class="material-symbols-outlined text-[18px]">bed</span><span class="font-body-md text-body-md">Rooms &amp; Bed Grid</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="residents-directory" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span class="font-body-md text-body-md">Residents Directory</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Money &amp; Finance</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="rent-and-payments" href="#"><span class="material-symbols-outlined text-[18px]">currency_rupee</span><span class="font-body-md text-body-md">Rent &amp; Payments</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="payment-receipts" href="#"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span class="font-body-md text-body-md">Payment Receipts</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Service &amp; Maintenance</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="complaints-and-requests" href="#"><span class="material-symbols-outlined text-[18px]">build</span><span class="font-body-md text-body-md">Complaints &amp; Requests</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="assigned-staff" href="#"><span class="material-symbols-outlined text-[18px]">engineering</span><span class="font-body-md text-body-md">Assigned Staff</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Communications</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="notice-board" href="#"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="font-body-md text-body-md">Notice Board</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="resident-feedback" href="#"><span class="material-symbols-outlined text-[18px]">reviews</span><span class="font-body-md text-body-md">Resident Feedback</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="enquiries-and-leads" href="#"><span class="material-symbols-outlined text-[18px]">contact_phone</span><span class="font-body-md text-body-md">Enquiries &amp; Leads</span></a></nav></div></div><div class="p-space-md border-t border-outline-variant bg-surface-container-low/40 space-y-space-sm"><div class="flex items-center justify-between font-label-sm text-label-sm"><div class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span>Sync: Cloud Active</span></div><span class="font-numeric-data text-numeric-data text-on-surface-variant">99.8%</span></div><div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest border border-outline-variant"><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface">System Mode</span><span class="font-label-sm text-label-sm text-on-surface-variant">Full Permission</span></div><span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold uppercase tracking-wider">ADMIN</span></div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-1 max-w-2xl"><div class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant shrink-0"><span class="material-symbols-outlined text-[18px] text-outline">domain</span><span>NestOps</span><span class="text-outline-variant">/</span><span class="text-on-surface font-semibold">Operations</span></div><div class="relative flex-1"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline"><span class="material-symbols-outlined text-[18px]">search</span></div><input class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Search bed no, resident phone, Aadhaar, room token..." type="text"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer"><span class="material-symbols-outlined text-[18px] text-primary">location_on</span><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Greenwood Luxury PG</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Navrangpura, Ahmedabad</span></div><span class="material-symbols-outlined text-[18px] text-outline ml-1">expand_more</span></div><div class="h-6 w-px bg-outline-variant"></div><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-error text-on-error font-label-sm text-[10px] font-bold flex items-center justify-center leading-none">3</span></button><div class="flex items-center gap-space-sm pl-1 cursor-pointer"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden xl:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Anand Verma</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">PG Owner (Proprietor)</span></div></div></div></header><main class="relative pt-16 min-h-screen bg-background w-full px-space-lg py-space-lg"><div class="flex flex-col w-full">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Finance &amp; Accounts</span>
+<span class="text-outline-variant">/</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-semibold">Ledger &amp; Settlements</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Rent &amp; Payment Ledger</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">Automated monthly billing, Razorpay reconciliations, receipts &amp; overdue recovery.</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container text-on-surface-variant shadow-sm">
+<div class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">schedule</span>
+<span>Next auto-run in 12 days</span>
+</div>
+<span class="h-4 w-px bg-outline-variant"></span>
+<button class="font-label-sm text-label-sm font-semibold text-primary hover:text-primary-container transition-colors flex items-center gap-1" id="btnCronSim">
+<span>Trigger Invoicing</span>
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+</button>
+</div>
+<button class="flex items-center gap-space-xs px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md shadow-sm transition-all active:scale-[0.98]" id="btnManualPayment">
+<span class="material-symbols-outlined text-[18px]">add_card</span>
+<span>Record Manual Payment</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md mb-space-lg">
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-medium">October 2026 Collection</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">₹6,48,000</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ ₹7.14L</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-on-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t-0 bg-surface-container-low p-2 rounded-lg">
+<div class="flex items-center justify-between text-label-sm font-label-sm mb-1.5">
+<span class="text-on-surface-variant">Collection Target</span>
+<span class="text-primary font-bold">90.7% achieved</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-700" style="width: 90.7%"></div>
+</div>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-medium">Total Overdue</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-error tracking-tight">₹42,500</span>
+<span class="font-body-sm text-body-sm text-error/80 font-medium">unpaid</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-body-sm font-body-sm bg-error-container/30 p-2 rounded-lg">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+          5 residents &gt; 5 days
+        </span>
+<button class="font-label-sm text-label-sm text-error font-semibold hover:underline flex items-center gap-0.5">
+          Send Recovery <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-medium">Security Deposits</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">₹16,80,000</span>
+<span class="font-body-sm text-body-sm text-secondary font-medium">Escrow</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-body-sm font-body-sm bg-surface-container-low p-2 rounded-lg">
+<span class="text-on-surface-variant">Protected PG Corpus</span>
+<span class="font-numeric-data text-numeric-data text-primary font-bold">100% Locked</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-medium">Gateway Payouts</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">₹5,80,000</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Settled</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">assured_workload</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between text-body-sm font-body-sm bg-surface-container-low p-2 rounded-lg">
+<span class="text-on-surface-variant flex items-center gap-1 truncate">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
+          HDFC A/c **4912
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">T+1 Auto</span>
+</div>
+</div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest shadow-sm mb-space-lg overflow-hidden">
+<div class="p-space-md flex flex-col lg:flex-row lg:items-center justify-between gap-space-md bg-surface-container-low/50">
+<div class="flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0" id="filterTabs">
+<button class="tab-btn px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold transition-all" data-filter="all">All Invoices (84)</button>
+<button class="tab-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md transition-all" data-filter="paid">Paid (68)</button>
+<button class="tab-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md transition-all" data-filter="pending">Pending (11)</button>
+<button class="tab-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md transition-all" data-filter="overdue">Overdue (5)</button>
+<button class="tab-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md transition-all" data-filter="adjustments">Refunds / Adj. (2)</button>
+</div>
+<div class="flex items-center gap-space-xs self-end lg:self-auto">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary">sim_card_download</span>
+<span>Export CSV / Tally</span>
+</button>
+</div>
+</div>
+<div class="p-space-md flex flex-wrap items-center gap-space-sm bg-surface-container-lowest">
+<div class="relative flex-1 min-w-[280px]">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</div>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest transition-all" id="searchInput" placeholder="Search by resident, room, txn ID or receipt #..." type="text"/>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-low cursor-pointer">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_month</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">October 2026</span>
+<span class="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container-low text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">date_range</span>
+<span>Due Date Range: <strong>01 - 15 Oct</strong></span>
+</div>
+</div>
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-3 px-4">Invoice #</th>
+<th class="py-3 px-4">Resident &amp; Room</th>
+<th class="py-3 px-4">Billing Period</th>
+<th class="py-3 px-4 text-right">Base Rent</th>
+<th class="py-3 px-4 text-right">Utility/Maint.</th>
+<th class="py-3 px-4 text-right">Total Amount</th>
+<th class="py-3 px-4">Due Date</th>
+<th class="py-3 px-4">Payment Status &amp; Method</th>
+<th class="py-3 px-4">Txn ID</th>
+<th class="py-3 px-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-on-surface">
+<tr class="hover:bg-surface-container-low/60 transition-colors" data-invoice="INV-2026-1048" data-status="paid">
+<td class="py-3.5 px-4 font-numeric-data text-numeric-data font-semibold text-primary cursor-pointer hover:underline preview-trigger" data-amount="₹15,500" data-date="03 Oct 2026, 02:44 PM" data-inv="INV-2026-1048" data-method="Razorpay UPI (Axis Bank)" data-name="Jay Shah" data-room="Room 201-A (Single)" data-txn="pay_Nz891mKLa9">
+              INV-2026-1048
+            </td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Jay Shah</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 201-A • Single Sharing</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">01 Oct - 31 Oct</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data">₹15,000</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data text-on-surface-variant">₹500</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data font-bold text-on-surface">₹15,500</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">05 Oct 2026</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-fixed/50 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>PAID (Razorpay UPI, 03 Oct)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-numeric-data text-body-sm text-outline">pay_Nz891mKLa9</td>
+<td class="py-3.5 px-4 text-right">
+<button class="preview-trigger px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1 ml-auto" data-amount="₹15,500" data-date="03 Oct 2026, 02:44 PM" data-inv="INV-2026-1048" data-method="Razorpay UPI (Axis Bank)" data-name="Jay Shah" data-room="Room 201-A (Single)" data-txn="pay_Nz891mKLa9">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span>PDF Receipt</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/60 transition-colors" data-invoice="INV-2026-1049" data-status="paid">
+<td class="py-3.5 px-4 font-numeric-data text-numeric-data font-semibold text-primary cursor-pointer hover:underline preview-trigger" data-amount="₹8,800" data-date="04 Oct 2026, 11:15 AM" data-inv="INV-2026-1049" data-method="Razorpay Netbanking (HDFC)" data-name="Rahul Patel" data-room="Room 101-A (Double)" data-txn="pay_Kx712aBC31">
+              INV-2026-1049
+            </td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Rahul Patel</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 101-A • Double Sharing</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">01 Oct - 31 Oct</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data">₹8,500</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data text-on-surface-variant">₹300</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data font-bold text-on-surface">₹8,800</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">05 Oct 2026</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-fixed/50 text-primary font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>PAID (Razorpay Netbanking)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-numeric-data text-body-sm text-outline">pay_Kx712aBC31</td>
+<td class="py-3.5 px-4 text-right">
+<button class="preview-trigger px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1 ml-auto" data-amount="₹8,800" data-date="04 Oct 2026, 11:15 AM" data-inv="INV-2026-1049" data-method="Razorpay Netbanking (HDFC)" data-name="Rahul Patel" data-room="Room 101-A (Double)" data-txn="pay_Kx712aBC31">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span>PDF Receipt</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/60 transition-colors" data-invoice="INV-2026-1050" data-status="pending">
+<td class="py-3.5 px-4 font-numeric-data text-numeric-data font-semibold text-outline">INV-2026-1050</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Priya Mehta</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 104-B • Double Sharing</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">01 Oct - 31 Oct</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data">₹8,500</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data text-on-surface-variant">₹300</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data font-bold text-on-surface">₹8,800</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">10 Oct 2026</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>PENDING (Reminder via WhatsApp)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-numeric-data text-body-sm text-outline">—</td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container hover:opacity-90 font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1 ml-auto">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span>Send Payment Link</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/60 transition-colors bg-error-container/10" data-invoice="INV-2026-1051" data-status="overdue">
+<td class="py-3.5 px-4 font-numeric-data text-numeric-data font-semibold text-error">INV-2026-1051</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Rohan Sharma</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 302-A • Triple Sharing</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">01 Oct - 31 Oct</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data">₹7,000</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data text-error font-medium">+₹400 / +₹350 Fine</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data font-bold text-error">₹7,750</td>
+<td class="py-3.5 px-4 text-error font-semibold font-body-sm">05 Oct 2026 (7D Late)</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span>OVERDUE (7 Days Late)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-numeric-data text-body-sm text-outline">—</td>
+<td class="py-3.5 px-4 text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="px-2 py-1 rounded bg-error text-on-error hover:bg-error/90 font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">notification_important</span>
+<span>Notice</span>
+</button>
+<button class="px-2 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold transition-colors">
+                  Record Cash
+                </button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/60 transition-colors" data-invoice="INV-2026-1052" data-status="pending">
+<td class="py-3.5 px-4 font-numeric-data text-numeric-data font-semibold text-tertiary">INV-2026-1052</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Sameer Khan</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 304-C • Four Sharing</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">01 Oct - 31 Oct</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data">₹6,500</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data text-on-surface-variant">₹300</td>
+<td class="py-3.5 px-4 text-right font-numeric-data text-numeric-data font-bold text-on-surface">₹6,800</td>
+<td class="py-3.5 px-4 text-on-surface-variant font-body-sm">05 Oct 2026</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>PARTIALLY PAID (₹4,000 paid)</span>
+</div>
+</td>
+<td class="py-3.5 px-4 font-numeric-data text-body-sm text-outline">pay_Mm901xYT11</td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-2.5 py-1 rounded bg-primary hover:bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold transition-colors flex items-center gap-1 ml-auto">
+<span class="material-symbols-outlined text-[16px]">payments</span>
+<span>Collect ₹2,800</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-space-md bg-surface-container-low flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
+<span>Showing 5 of 84 ledger transactions • Greenwood Luxury PG</span>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded bg-surface-container-lowest text-outline hover:text-on-surface disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="font-numeric-data text-numeric-data text-on-surface font-semibold">Page 1 of 17</span>
+<button class="p-1 rounded bg-surface-container-lowest text-outline hover:text-on-surface">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg mb-space-lg">
+<div class="lg:col-span-2 rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<div class="flex items-center justify-between mb-space-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Settlement Reconciliation Velocity</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Razorpay direct nodal bank transfers over current billing cycle</p>
+</div>
+<span class="px-2.5 py-1 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">LIVE RECON ACTIVE</span>
+</div>
+<div class="relative h-44 w-full flex items-end gap-3 pt-6 pb-2">
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹84k</span>
+<div class="w-full bg-primary-fixed/40 hover:bg-primary rounded-t-md transition-all h-[45%]"></div>
+<span class="font-label-sm text-label-sm text-outline">01 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹142k</span>
+<div class="w-full bg-primary-fixed/40 hover:bg-primary rounded-t-md transition-all h-[75%]"></div>
+<span class="font-label-sm text-label-sm text-outline">02 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹210k</span>
+<div class="w-full bg-primary rounded-t-md transition-all h-[95%]"></div>
+<span class="font-label-sm text-label-sm font-semibold text-primary">03 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹112k</span>
+<div class="w-full bg-primary-fixed/40 hover:bg-primary rounded-t-md transition-all h-[60%]"></div>
+<span class="font-label-sm text-label-sm text-outline">04 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹65k</span>
+<div class="w-full bg-primary-fixed/40 hover:bg-primary rounded-t-md transition-all h-[35%]"></div>
+<span class="font-label-sm text-label-sm text-outline">05 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹35k</span>
+<div class="w-full bg-primary-fixed/40 hover:bg-primary rounded-t-md transition-all h-[20%]"></div>
+<span class="font-label-sm text-label-sm text-outline">06 Oct</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+<span class="font-numeric-data text-label-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">₹42k</span>
+<div class="w-full bg-secondary rounded-t-md transition-all h-[25%]"></div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Today</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex flex-wrap items-center justify-between text-body-sm text-on-surface-variant bg-surface-container-low p-3 rounded-lg">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded bg-primary"></span>
+<span>Settled to Bank (₹5.80L)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded bg-secondary"></span>
+<span>In-transit Razorpay (₹42K)</span>
+</div>
+<div class="font-label-md text-label-md text-primary font-bold">
+          All T+1 Payouts Cleared
+        </div>
+</div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface">Payment Channel Split</h3>
+<span class="material-symbols-outlined text-outline">pie_chart</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Resident mode preference for Oct 2026</p>
+<div class="space-y-3">
+<div>
+<div class="flex items-center justify-between text-label-sm font-label-sm mb-1">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">qr_code_2</span>
+                UPI Autopay &amp; QR
+              </span>
+<span class="font-numeric-data font-bold text-on-surface">64% (₹4.14L)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between text-label-sm font-label-sm mb-1">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">credit_card</span>
+                Netbanking &amp; Debit Card
+              </span>
+<span class="font-numeric-data font-bold text-on-surface">26% (₹1.68L)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 26%"></div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between text-label-sm font-label-sm mb-1">
+<span class="text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">payments</span>
+                Cash / Direct NEFT Handover
+              </span>
+<span class="font-numeric-data font-bold text-on-surface">10% (₹66K)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 10%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 p-3 rounded-lg bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">notifications_active</span>
+<span class="font-label-md text-label-md">WhatsApp Reminders</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">AUTOMATED</span>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm hidden flex items-center justify-center p-4" id="receiptModal">
+<div class="bg-surface-container-lowest w-full max-w-xl rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-150">
+<div class="p-space-md bg-primary text-on-primary flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+<div>
+<span class="font-headline-md text-headline-md font-bold block" id="recModalTitle">Payment Receipt Quick Preview</span>
+<span class="font-label-sm text-label-sm text-primary-fixed opacity-90" id="recModalSub">#REC-2026-1048 • IRN GST Validated</span>
+</div>
+</div>
+<button class="p-1.5 rounded-lg hover:bg-primary-container text-on-primary transition-colors" id="closeModal">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="p-space-lg space-y-space-md">
+<div class="flex items-start justify-between pb-3 border-b-0 bg-surface-container-low p-space-md rounded-xl">
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block">Greenwood Luxury PG Co-Living</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Plot 42, University Road, Navrangpura, Ahmedabad</span>
+<span class="font-label-sm text-label-sm text-outline block mt-0.5">GSTIN: 24AABCN8912P1ZL • SAC 9963</span>
+</div>
+<div class="text-right">
+<span class="px-2 py-1 rounded bg-primary-fixed text-primary font-label-sm text-label-sm font-bold uppercase tracking-wider block mb-1">PAID IN FULL</span>
+<span class="font-numeric-data text-body-sm text-on-surface-variant" id="recDate">03 Oct 2026, 02:44 PM</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="p-3 rounded-lg bg-surface-container">
+<span class="font-label-sm text-label-sm uppercase text-outline block">Billed To (Resident)</span>
+<span class="font-label-md text-label-md font-bold text-on-surface block mt-1" id="recResident">Jay Shah</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block" id="recRoom">Room 201-A (Single AC)</span>
+<span class="font-body-sm text-body-sm text-outline block">Aadhaar: **** **** 8912</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container">
+<span class="font-label-sm text-label-sm uppercase text-outline block">Transaction Detail</span>
+<span class="font-numeric-data text-numeric-data font-semibold text-primary block mt-1" id="recTxn">pay_Nz891mKLa9</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block" id="recMethod">Razorpay UPI (Axis Bank)</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold block mt-0.5">Instant Reconciliation Verified</span>
+</div>
+</div>
+<div class="rounded-xl overflow-hidden bg-surface-container-low">
+<div class="p-3 bg-surface-container font-label-sm text-label-sm uppercase text-on-surface-variant font-semibold flex justify-between">
+<span>Description</span>
+<span>Amount</span>
+</div>
+<div class="p-3 space-y-2 font-body-sm text-body-sm">
+<div class="flex justify-between text-on-surface">
+<span>Single Occupancy Room Rent (Oct 2026)</span>
+<span class="font-numeric-data">₹15,000.00</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>High-Speed Mesh Wi-Fi &amp; Maintenance</span>
+<span class="font-numeric-data">₹500.00</span>
+</div>
+<div class="flex justify-between text-on-surface-variant text-label-sm">
+<span>GST on Residential Lodging (&lt; ₹20k/mo limit exempt)</span>
+<span class="font-numeric-data">₹0.00</span>
+</div>
+<div class="pt-2 border-t-0 bg-surface-container p-2 rounded flex justify-between font-label-md text-label-md font-bold text-on-surface">
+<span>Total Received:</span>
+<span class="text-primary text-headline-sm font-bold" id="recTotal">₹15,500.00</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">verified_user</span>
+<span>Tamper-proof Cryptographic PDF Hash</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5" id="btnPrintReceipt">
+<span class="material-symbols-outlined text-[18px]">print</span>
+<span>Print / PDF</span>
+</button>
+<button class="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold transition-colors flex items-center gap-1.5" onclick="alert('Receipt resent directly to resident via WhatsApp &amp; Email!')">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>Resend WhatsApp</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm hidden flex items-center justify-center p-4" id="manualPayModal">
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden">
+<div class="p-space-md bg-surface-container text-on-surface flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">payments</span>
+<span class="font-headline-md text-headline-md font-bold">Record Manual / Cash Payment</span>
+</div>
+<button class="p-1 rounded-lg hover:bg-surface-container-high text-outline" id="closeManualModal">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="p-space-md space-y-3">
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Select Resident or Bed</label>
+<select class="w-full p-2.5 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:outline-none">
+<option>Rohan Sharma (Room 302-A) - ₹7,750 OVERDUE</option>
+<option>Sameer Khan (Room 304-C) - ₹2,800 BAL DUE</option>
+<option>Priya Mehta (Room 104-B) - ₹8,800 PENDING</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Amount Collected (₹)</label>
+<input class="w-full p-2.5 rounded-lg bg-surface-container-low font-numeric-data text-numeric-data text-on-surface focus:outline-none font-bold" type="number" value="7750"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Payment Method</label>
+<select class="w-full p-2.5 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:outline-none">
+<option>Cash Handover (Warden Desk)</option>
+<option>Direct Bank NEFT/RTGS</option>
+<option>Cheque Deposit</option>
+<option>External POS Swipe</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm font-semibold text-on-surface mb-1">Reference / Note</label>
+<input class="w-full p-2.5 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:outline-none" placeholder="e.g. Received by Warden Anil at 10 AM, receipt slip #481" type="text"/>
+</div>
+<div class="pt-3 flex items-center justify-end gap-2">
+<button class="px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md" id="cancelManualPay">Cancel</button>
+<button class="px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors" id="saveManualPay">Confirm &amp; Issue Receipt</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      const modal = document.getElementById('receiptModal');
+      const manualModal = document.getElementById('manualPayModal');
+      const triggers = document.querySelectorAll('.preview-trigger');
+      const closeBtn = document.getElementById('closeModal');
+      const closeManualBtn = document.getElementById('closeManualModal');
+      const cancelManualBtn = document.getElementById('cancelManualPay');
+      const saveManualBtn = document.getElementById('saveManualPay');
+      const btnManualPayment = document.getElementById('btnManualPayment');
+      const btnCronSim = document.getElementById('btnCronSim');
+      
+      const recModalSub = document.getElementById('recModalSub');
+      const recResident = document.getElementById('recResident');
+      const recRoom = document.getElementById('recRoom');
+      const recTxn = document.getElementById('recTxn');
+      const recMethod = document.getElementById('recMethod');
+      const recDate = document.getElementById('recDate');
+      const recTotal = document.getElementById('recTotal');
+
+      triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          const inv = trigger.dataset.inv || 'INV-2026-1048';
+          recModalSub.textContent = '#' + inv.replace('INV', 'REC') + ' • IRN GST Validated';
+          recResident.textContent = trigger.dataset.name || 'Resident';
+          recRoom.textContent = trigger.dataset.room || 'Room PG';
+          recTxn.textContent = trigger.dataset.txn || 'pay_manual_offline';
+          recMethod.textContent = trigger.dataset.method || 'Razorpay Gateway';
+          recDate.textContent = trigger.dataset.date || '05 Oct 2026, 12:00 PM';
+          recTotal.textContent = trigger.dataset.amount || '₹15,000.00';
+          modal.classList.remove('hidden');
+        });
+      });
+
+      closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+      });
+
+      btnManualPayment.addEventListener('click', () => manualModal.classList.remove('hidden'));
+      closeManualBtn.addEventListener('click', () => manualModal.classList.add('hidden'));
+      cancelManualBtn.addEventListener('click', () => manualModal.classList.add('hidden'));
+      saveManualBtn.addEventListener('click', () => {
+        alert('Payment recorded successfully! WhatsApp confirmation triggered.');
+        manualModal.classList.add('hidden');
+      });
+
+      btnCronSim.addEventListener('click', () => {
+        alert('Billing Cron Executed: 84 invoices re-evaluated, 5 late fines calculated, all webhook queues verified.');
+      });
+
+      document.getElementById('btnPrintReceipt').addEventListener('click', () => {
+        window.print();
+      });
+
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const rows = document.querySelectorAll('tbody tr');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => {
+            b.classList.remove('bg-primary', 'text-on-primary');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-primary', 'text-on-primary');
+          btn.classList.remove('text-on-surface-variant');
+
+          const filter = btn.dataset.filter;
+          rows.forEach(r => {
+            if (filter === 'all') {
+              r.style.display = '';
+            } else if (filter === 'paid' && r.dataset.status === 'paid') {
+              r.style.display = '';
+            } else if (filter === 'pending' && r.dataset.status === 'pending') {
+              r.style.display = '';
+            } else if (filter === 'overdue' && r.dataset.status === 'overdue') {
+              r.style.display = '';
+            } else if (filter === 'adjustments') {
+              r.style.display = 'none';
+            } else {
+              r.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        rows.forEach(r => {
+          const text = r.textContent.toLowerCase();
+          r.style.display = text.includes(val) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+</div></main></div></body></html>

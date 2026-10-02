@@ -1,0 +1,2 @@
+const Input = ({ label, error, hint, className = '', ...props }) => <label className="block"><span className="label">{label}</span><input className={`input min-h-11 ${error ? 'border-error focus:border-error focus:ring-error' : ''} ${className}`} {...props} />{error ? <span className="mt-1 block text-label-sm text-error">{error}</span> : hint && <span className="mt-1 block text-label-sm text-on-surface-variant">{hint}</span>}</label>;
+export default Input;

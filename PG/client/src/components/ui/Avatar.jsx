@@ -1,0 +1,2 @@
+const Avatar = ({ name = '', size = 'md', className = '' }) => <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-primary-fixed text-on-primary-fixed font-semibold ${size === 'sm' ? 'h-7 w-7 text-[10px]' : size === 'lg' ? 'h-11 w-11 text-label-md' : 'h-9 w-9 text-label-sm'} ${className}`}>{name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase() || '—'}</span>;
+export default Avatar;

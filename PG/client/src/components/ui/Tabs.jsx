@@ -1,0 +1,2 @@
+const Tabs = ({ items, value, onChange }) => <div className="flex gap-1 overflow-x-auto rounded-xl bg-surface-container-low p-1">{items.map((item) => { const key = typeof item === 'string' ? item : item.value; const label = typeof item === 'string' ? item : item.label; return <button key={key} onClick={() => onChange(key)} className={`whitespace-nowrap rounded-lg px-3 py-2 text-label-md transition-colors ${value === key ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-white hover:text-on-surface'}`}>{label}</button>; })}</div>;
+export default Tabs;

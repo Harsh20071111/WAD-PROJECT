@@ -1,0 +1,2 @@
+const Skeleton = ({ className = '' }) => <span className={`block animate-pulse rounded-lg bg-slate-200 ${className}`} aria-hidden="true" />;
+export default Skeleton;

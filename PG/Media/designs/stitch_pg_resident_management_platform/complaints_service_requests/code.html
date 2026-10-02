@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#855300","on-tertiary-fixed-variant":"#004b73","surface-tint":"#006a63","surface-container-lowest":"#ffffff","outline":"#6e7977","outline-variant":"#bdc9c6","on-tertiary-fixed":"#001d31","on-tertiary":"#ffffff","tertiary-fixed-dim":"#93ccff","surface-dim":"#d2d9f4","on-error-container":"#93000a","primary":"#005c55","on-surface-variant":"#3e4947","primary-container":"#0f766e","inverse-surface":"#283044","surface-container":"#eaedff","secondary-fixed":"#ffddb8","on-primary":"#ffffff","tertiary-fixed":"#cce5ff","on-secondary":"#ffffff","tertiary-container":"#006fa8","on-error":"#ffffff","primary-fixed":"#9cf2e8","secondary-container":"#fea619","secondary-fixed-dim":"#ffb95f","on-primary-fixed-variant":"#00504a","error-container":"#ffdad6","surface":"#faf8ff","surface-variant":"#dae2fd","on-secondary-container":"#684000","on-background":"#131b2e","tertiary":"#005683","on-tertiary-container":"#dbecff","background":"#faf8ff","on-surface":"#131b2e","on-primary-container":"#a3faef","inverse-on-surface":"#eef0ff","surface-bright":"#faf8ff","on-secondary-fixed":"#2a1700","surface-container-highest":"#dae2fd","surface-container-low":"#f2f3ff","primary-fixed-dim":"#80d5cb","inverse-primary":"#80d5cb","on-secondary-fixed-variant":"#653e00","error":"#ba1a1a","surface-container-high":"#e2e7ff","on-primary-fixed":"#00201d"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2rem","gutter":"1rem","space-md":"1rem","space-sm":"0.5rem","space-xs":"0.25rem","space-lg":"1.5rem","margin":"1.5rem"},"fontFamily":{"headline-md":["Plus Jakarta Sans"],"body-md":["Inter"],"numeric-data":["Inter"],"label-md":["Inter"],"headline-xl":["Plus Jakarta Sans"],"body-lg":["Inter"],"label-sm":["Inter"],"headline-lg":["Plus Jakarta Sans"],"body-sm":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"]},"fontSize":{"headline-md":["18px",{"lineHeight":"26px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"numeric-data":["14px",{"lineHeight":"20px","fontWeight":"600"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"600"}],"headline-xl":["30px",{"lineHeight":"38px","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-sm":["11px",{"lineHeight":"14px","fontWeight":"500"}],"headline-lg":["24px",{"lineHeight":"32px","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"headline-xl-mobile":["24px",{"lineHeight":"32px","fontWeight":"700"}],"headline-lg-mobile":["20px",{"lineHeight":"28px","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-60 bg-surface-container-lowest border-r border-outline-variant z-50 flex flex-col justify-between select-none"><div class="flex flex-col min-h-0"><div class="h-16 px-space-md border-b border-outline-variant flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[20px]">apartment</span></div><div class="flex flex-col"><span class="font-headline-md text-[16px] font-bold text-primary tracking-tight leading-tight">NestOps</span><span class="font-label-sm text-label-sm text-on-surface-variant">NiwasPG ERP v2.4</span></div></div><span class="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold uppercase tracking-wider">HQ</span></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md space-y-space-lg"><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Overview</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span class="font-body-md text-body-md">Dashboard</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Residents &amp; Rooms</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="rooms-and-bed-grid" href="#"><span class="material-symbols-outlined text-[18px]">bed</span><span class="font-body-md text-body-md">Rooms &amp; Bed Grid</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="residents-directory" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span class="font-body-md text-body-md">Residents Directory</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Money &amp; Finance</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="rent-and-payments" href="#"><span class="material-symbols-outlined text-[18px]">currency_rupee</span><span class="font-body-md text-body-md">Rent &amp; Payments</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="payment-receipts" href="#"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span class="font-body-md text-body-md">Payment Receipts</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Service &amp; Maintenance</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="complaints-and-requests" href="#"><span class="material-symbols-outlined text-[18px]">build</span><span class="font-body-md text-body-md">Complaints &amp; Requests</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="assigned-staff" href="#"><span class="material-symbols-outlined text-[18px]">engineering</span><span class="font-body-md text-body-md">Assigned Staff</span></a></nav><nav class="space-y-space-xs" data-active-classes="bg-primary text-on-primary font-semibold"><div class="px-space-sm pb-1 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-outline">Communications</div><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="notice-board" href="#"><span class="material-symbols-outlined text-[18px]">campaign</span><span class="font-body-md text-body-md">Notice Board</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="resident-feedback" href="#"><span class="material-symbols-outlined text-[18px]">reviews</span><span class="font-body-md text-body-md">Resident Feedback</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="enquiries-and-leads" href="#"><span class="material-symbols-outlined text-[18px]">contact_phone</span><span class="font-body-md text-body-md">Enquiries &amp; Leads</span></a></nav></div></div><div class="p-space-md border-t border-outline-variant bg-surface-container-low/40 space-y-space-sm"><div class="flex items-center justify-between font-label-sm text-label-sm"><div class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span>Sync: Cloud Active</span></div><span class="font-numeric-data text-numeric-data text-on-surface-variant">99.8%</span></div><div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-lowest border border-outline-variant"><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface">System Mode</span><span class="font-label-sm text-label-sm text-on-surface-variant">Full Permission</span></div><span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold uppercase tracking-wider">ADMIN</span></div></div></aside><div class="pl-60"><header class="fixed top-0 left-60 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant z-40 px-space-lg flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md flex-1 max-w-2xl"><div class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant shrink-0"><span class="material-symbols-outlined text-[18px] text-outline">domain</span><span>NestOps</span><span class="text-outline-variant">/</span><span class="text-on-surface font-semibold">Operations</span></div><div class="relative flex-1"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline"><span class="material-symbols-outlined text-[18px]">search</span></div><input class="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Search bed no, resident phone, Aadhaar, room token..." type="text"/></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer"><span class="material-symbols-outlined text-[18px] text-primary">location_on</span><div class="flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Greenwood Luxury PG</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">Navrangpura, Ahmedabad</span></div><span class="material-symbols-outlined text-[18px] text-outline ml-1">expand_more</span></div><div class="h-6 w-px bg-outline-variant"></div><button class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-error text-on-error font-label-sm text-[10px] font-bold flex items-center justify-center leading-none">3</span></button><div class="flex items-center gap-space-sm pl-1 cursor-pointer"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden xl:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Anand Verma</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none">PG Owner (Proprietor)</span></div></div></div></header><main class="relative pt-16 min-h-screen bg-background w-full px-space-lg py-space-lg"><div class="flex flex-col w-full">
+<div class="flex flex-col gap-space-lg w-full">
+<!-- Top Action & Meta Banner -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm uppercase tracking-wider font-semibold">SLA Monitor v2.1</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span> Live Dispatch Desk
+          </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Service Requests &amp; Maintenance Tickets</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">
+          Track resident complaints, assign vendor staff, enforce transition SLAs and monitor resolution ratings across Greenwood Luxury PG.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container-low font-label-md text-label-md shadow-sm transition-all">
+<span class="material-symbols-outlined text-[18px] text-primary">engineering</span>
+<span>Manage Service Staff (6 active)</span>
+</button>
+<button class="flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md shadow-sm transition-all">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Log New Complaint</span>
+</button>
+</div>
+</div>
+<!-- Quick Metric Cards Strip -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Breach Risk (&lt;4h)</span>
+<span class="p-1 rounded bg-error-container text-on-error-container material-symbols-outlined text-[16px]">alarm</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-error">03</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Immediate Action</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Unassigned Queue</span>
+<span class="p-1 rounded bg-secondary-fixed text-on-secondary-fixed material-symbols-outlined text-[16px]">assignment_late</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface">03</span>
+<span class="font-label-sm text-label-sm text-secondary">Awaiting tech allocation</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Avg First Response</span>
+<span class="p-1 rounded bg-tertiary-fixed text-on-tertiary-fixed material-symbols-outlined text-[16px]">pace</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-tertiary">38m</span>
+<span class="font-label-sm text-label-sm text-primary">12m below benchmark</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">MTTR (Avg Resolve)</span>
+<span class="p-1 rounded bg-surface-container text-primary material-symbols-outlined text-[16px]">task_alt</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-primary">4.2h</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Target &lt; 6.0h</span>
+</div>
+</div>
+</div>
+<!-- Filter & Search Toolbar -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<!-- Status Tabs -->
+<div class="flex items-center gap-1 overflow-x-auto pb-1">
+<button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap shadow-sm">
+          All Requests (28)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          New (3)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          Assigned (4)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          In Progress (5)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          On Hold (2)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          Resolved (12)
+        </button>
+<button class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container font-label-md text-label-md whitespace-nowrap transition-colors">
+          Closed (2)
+        </button>
+</div>
+<!-- Secondary Filters & Search -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
+<!-- Search -->
+<div class="md:col-span-5 relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</div>
+<input class="w-full pl-9 pr-3 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Search ticket REQ#, resident name, or room number..." type="text"/>
+</div>
+<!-- Category Dropdown -->
+<div class="md:col-span-3">
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option>All Categories</option>
+<option>Electrical</option>
+<option>Plumbing</option>
+<option>Cleaning / Housekeeping</option>
+<option>Wi-Fi / Internet</option>
+<option>AC / Appliance</option>
+<option>Carpentry</option>
+<option>Pest Control</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Priority Dropdown -->
+<div class="md:col-span-2">
+<div class="relative">
+<select class="w-full appearance-none pl-3 pr-8 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option>Priority: All</option>
+<option>High Priority</option>
+<option>Medium Priority</option>
+<option>Low Priority</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-2.5 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- SLA Sort / Export -->
+<div class="md:col-span-2 flex items-center justify-end gap-2">
+<button class="w-full py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+<span>Sort: SLA Urgency</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Split Screen Layout: 55% Master List | 45% Ticket Details -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT SIDE (55%): Tickets Master List (7 cols of 12) -->
+<div class="lg:col-span-7 flex flex-col gap-space-sm">
+<!-- Table Column Headers -->
+<div class="flex items-center justify-between px-space-md py-1 font-label-sm text-label-sm text-outline uppercase tracking-wider">
+<span>Tickets &amp; Issue Details</span>
+<span class="text-right">SLA &amp; Assigned Handlers</span>
+</div>
+<!-- Card 1 (Active/Selected) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer relative bg-gradient-to-r from-primary/5 via-surface-container-lowest to-surface-container-lowest">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-primary rounded-l-xl"></div>
+<div class="flex flex-col gap-2.5">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-numeric-data text-numeric-data text-primary font-bold">REQ-1042</span>
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> HIGH
+                </span>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">
+                  IN PROGRESS
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  AC / Appliance
+                </span>
+</div>
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">2 hrs ago</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface line-clamp-1">AC indoor unit leaking water onto desk</h2>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-sm text-body-sm mt-1">
+<span class="flex items-center gap-1 font-medium text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-outline">meeting_room</span>
+                  Room 204 (Floor 2, Bed A)
+                </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">person</span>
+                  Manish Varma
+                </span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container text-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<div class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-label-sm">
+                  RP
+                </div>
+<span class="font-medium">Ramesh Patel (Electrician)</span>
+</div>
+<div class="flex items-center gap-1.5 font-numeric-data text-numeric-data text-error font-medium">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Overdue in 4 hrs</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-numeric-data text-numeric-data text-on-surface font-bold">REQ-1039</span>
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flag</span> HIGH
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold">
+                  ASSIGNED
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Electrical
+                </span>
+</div>
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">3.5 hrs ago</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface line-clamp-1">Geyser MCB trips immediately when turned on</h2>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-sm text-body-sm mt-1">
+<span class="flex items-center gap-1 font-medium text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-outline">meeting_room</span>
+                  Room 108 (Floor 1, Bed B)
+                </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">person</span>
+                  Priya Mehta
+                </span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container text-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-label-sm">
+                  SP
+                </div>
+<span class="font-medium">Suresh Plumber</span>
+</div>
+<div class="flex items-center gap-1.5 font-numeric-data text-numeric-data text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>SLA: 6 hrs remaining</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-numeric-data text-numeric-data text-on-surface font-bold">REQ-1038</span>
+<span class="px-2 py-0.5 rounded bg-secondary-fixed-dim text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">
+                  MEDIUM
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                  NEW
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Wi-Fi / Internet
+                </span>
+</div>
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">4 hrs ago</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface line-clamp-1">Wi-Fi 5GHz band not connecting on 3rd floor corridor</h2>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-sm text-body-sm mt-1">
+<span class="flex items-center gap-1 font-medium text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-outline">router</span>
+                  Floor 3 Common Area
+                </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">person</span>
+                  Jay Shah
+                </span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container text-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-secondary font-medium">
+<span class="material-symbols-outlined text-[18px]">person_off</span>
+<span>Unassigned • Assign Now</span>
+</div>
+<div class="flex items-center gap-1.5 font-numeric-data text-numeric-data text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>SLA: 12 hrs remaining</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4 (Resolved with Rating) -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer opacity-85 hover:opacity-100">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-numeric-data text-numeric-data text-on-surface font-bold">REQ-1035</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  NORMAL
+                </span>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">
+                  RESOLVED
+                </span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                  Cleaning
+                </span>
+</div>
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">Yesterday</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface line-clamp-1">Room deep cleaning after roommate checkout</h2>
+<div class="flex items-center gap-3 text-on-surface-variant font-body-sm text-body-sm mt-1">
+<span class="flex items-center gap-1 font-medium text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-outline">meeting_room</span>
+                  Room 102-B
+                </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline">star</span>
+<span class="font-numeric-data text-numeric-data text-secondary">5.0</span>
+<span class="text-on-surface-variant text-label-sm">(Rating received)</span>
+</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-surface-container text-body-sm text-body-sm">
+<div class="flex items-center gap-2 text-on-surface">
+<div class="w-6 h-6 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center font-bold text-label-sm">
+                  SH
+                </div>
+<span class="font-medium">Santosh Housekeeping</span>
+</div>
+<div class="flex items-center gap-1 text-primary font-medium">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Closed by Admin</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT SIDE (45%): Detailed Ticket Panel & Activity Timeline (5 cols of 12) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-md">
+<!-- Detail Panel Header -->
+<div class="flex flex-col gap-2 pb-space-sm border-b border-surface-container">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 rounded-full bg-primary font-numeric-data text-numeric-data text-on-primary font-bold">
+                  REQ-1042
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Logged via Resident App</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Print Job Sheet">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-surface-container transition-colors" title="Share on WhatsApp">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-bold leading-snug">
+              AC indoor unit leaking water onto desk
+            </h3>
+<!-- Resident Profile Badge -->
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low mt-1">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-numeric-data text-numeric-data">
+                  MV
+                </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Manish Varma</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Room 204 • Bed A • Navrangpura</span>
+</div>
+</div>
+<a class="px-2.5 py-1.5 rounded-md bg-surface-container text-on-surface font-label-sm text-label-sm flex items-center gap-1 hover:bg-surface-container-high transition-colors" href="tel:+919825012345">
+<span class="material-symbols-outlined text-[15px] text-primary">call</span>
+<span>+91 98250 12345</span>
+</a>
+</div>
+</div>
+<!-- Status Workflow Stepper -->
+<div class="flex flex-col gap-2 py-1">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Workflow SLA Progression</span>
+<div class="grid grid-cols-5 gap-1.5 items-center">
+<!-- Step 1: NEW -->
+<div class="flex flex-col items-center gap-1 text-center">
+<div class="w-full h-1.5 rounded-full bg-primary"></div>
+<span class="font-label-sm text-[10px] font-bold text-primary">NEW</span>
+</div>
+<!-- Step 2: ASSIGNED -->
+<div class="flex flex-col items-center gap-1 text-center">
+<div class="w-full h-1.5 rounded-full bg-primary"></div>
+<span class="font-label-sm text-[10px] font-bold text-primary">ASSIGNED</span>
+</div>
+<!-- Step 3: IN PROGRESS (Active) -->
+<div class="flex flex-col items-center gap-1 text-center">
+<div class="w-full h-1.5 rounded-full bg-primary relative">
+<span class="absolute -top-1 right-0 w-3.5 h-3.5 rounded-full bg-primary border-2 border-surface-container-lowest"></span>
+</div>
+<span class="font-label-sm text-[10px] font-bold text-primary">IN PROGRESS</span>
+</div>
+<!-- Step 4: RESOLVED -->
+<div class="flex flex-col items-center gap-1 text-center opacity-40">
+<div class="w-full h-1.5 rounded-full bg-surface-container-high"></div>
+<span class="font-label-sm text-[10px] font-medium text-on-surface-variant">RESOLVED</span>
+</div>
+<!-- Step 5: CLOSED -->
+<div class="flex flex-col items-center gap-1 text-center opacity-40">
+<div class="w-full h-1.5 rounded-full bg-surface-container-high"></div>
+<span class="font-label-sm text-[10px] font-medium text-on-surface-variant">CLOSED</span>
+</div>
+</div>
+</div>
+<!-- Assigned Staff Card -->
+<div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Assigned Technician</span>
+<button class="font-label-sm text-label-sm text-primary font-bold hover:underline">Reassign Worker</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">
+                  RP
+                </div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">Ramesh Patel</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Senior AC &amp; Electrical Specialist</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-center gap-1 text-secondary font-numeric-data text-numeric-data">
+<span class="material-symbols-outlined text-[16px] text-secondary">star</span>
+<span>4.8</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">12 active tasks today</span>
+</div>
+</div>
+</div>
+<!-- Description Section -->
+<div class="flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Resident Issue Report</span>
+<p class="font-body-md text-body-md text-on-surface bg-surface-container-low/50 p-3 rounded-lg leading-relaxed">
+              "Water started dripping from the left vent around 8 AM this morning, soaking the wooden study table. Need technician urgently before electrical board gets damaged."
+            </p>
+</div>
+<!-- Attachments Gallery -->
+<div class="flex flex-col gap-2">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Attached Visual Evidence (2 Photos)</span>
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="relative group rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-24 object-cover group-hover:scale-105 transition-transform" data-alt="Close-up photograph of a white split air conditioner mounted on an off-white wall with clear water droplets actively leaking from the bottom casing down onto a wooden desk corner, taken in bright interior lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdGypBnjS-XVuGgyp3d3wGtjoRdmEtb4xpn_qtNeHLq-0qobmlYUpYyljOl8SNin2ZsZxVAFeCWkbX66GyPpRW8b0pKYe9gYbsG-vYPyHqUarQvZSQ7KPW-dvlps_58SAw5f8Jm8bIJp1Cfmqx2dABeKG4VRKG6xsvIurclxPaVhBa1fUm46cKSEw8r4cyGQc3HdO7z0YN8x_8TssiatGDMQ4fU62oS1q18JWr5fhFkdf9aZOOHGg"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-on-background/70 text-surface font-label-sm text-[10px]">ac_leak_photo_1.jpg</span>
+</div>
+<div class="relative group rounded-lg overflow-hidden bg-surface-container shadow-inner">
+<img class="w-full h-24 object-cover group-hover:scale-105 transition-transform" data-alt="Interior room view showing a dark brown study desk with textbooks and an open laptop pushed aside, damp paper and water pooling under the air conditioning vent overhead." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUeglC6_9f_A0l2OupC4YvTB7l0D-O-8anPOPrHBn22OKeHGyQ2047ta2cjfcAEKOT4TSayWRJ-ncqj_lIhrV6jVBBRLCDJmDMUCoGI9EyWUafrqDflj5dpZD90PutY_IAelsoMa8V3uDLRTYR_CB7iqT-nAhlDQXBV8kHte7U2hM0VApV4YGPXqA1B8qgNQGdSZi-ods1n2x18bXjOkHb_sLopzmXeYNyzkmgLJIR-88VsazvBj4"/>
+<span class="absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded bg-on-background/70 text-surface font-label-sm text-[10px]">study_table.jpg</span>
+</div>
+</div>
+</div>
+<!-- Status Update Action Box -->
+<div class="p-3.5 rounded-xl bg-surface-container-low flex flex-col gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">edit_note</span> Quick Dispatch &amp; Status Transition
+            </span>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+<div class="relative">
+<label class="font-label-sm text-[10px] text-outline uppercase font-semibold block mb-0.5">Next Allowed Transition</label>
+<select class="w-full appearance-none pl-2.5 pr-8 py-1.5 bg-surface-container-lowest text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary">
+<option>Mark RESOLVED (Ready for sign-off)</option>
+<option>Set ON HOLD (Parts Pending)</option>
+<option>Escalate to Building Warden</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 bottom-1.5 text-outline pointer-events-none text-[16px]">expand_more</span>
+</div>
+<div class="relative">
+<label class="font-label-sm text-[10px] text-outline uppercase font-semibold block mb-0.5">Inventory Consumed</label>
+<select class="w-full appearance-none pl-2.5 pr-8 py-1.5 bg-surface-container-lowest text-on-surface rounded-lg font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary">
+<option>None / Labor Only</option>
+<option>1x AC PVC Drain Pipe (10ft)</option>
+<option>1x Insulation Tape Roll</option>
+<option>1x Freon R32 Gas Top-Up</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 bottom-1.5 text-outline pointer-events-none text-[16px]">expand_more</span>
+</div>
+</div>
+<textarea class="w-full p-2.5 bg-surface-container-lowest text-on-surface rounded-lg font-body-sm text-body-sm placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary resize-none" placeholder="Add update note for resident and staff (e.g. Cleared drainage blockage, dried surrounding area)..." rows="2"></textarea>
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm cursor-pointer select-none">
+<input checked="" class="w-3.5 h-3.5 accent-primary rounded" type="checkbox"/>
+<span>Send SMS &amp; WhatsApp Alert to Manish</span>
+</label>
+<button class="px-space-md py-2 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md flex items-center gap-1.5 shadow-sm transition-all">
+<span>Update Ticket &amp; Notify Resident</span>
+<span class="material-symbols-outlined text-[16px]">send</span>
+</button>
+</div>
+</div>
+<!-- Vertical Activity Timeline -->
+<div class="flex flex-col gap-2 pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Audit Log &amp; Activity Stream</span>
+<div class="flex flex-col pl-2 border-l-2 border-surface-container ml-2 space-y-4">
+<!-- Timeline Item 1 -->
+<div class="relative pl-4">
+<div class="absolute -left-[13px] top-0.5 w-3 h-3 rounded-full bg-primary ring-4 ring-surface-container-lowest"></div>
+<div class="flex items-baseline justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold">Status set to 'IN PROGRESS'</span>
+<span class="font-numeric-data text-numeric-data text-outline text-label-sm">10:45 AM</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Updated by <span class="font-semibold text-on-surface">Ramesh Patel (Staff)</span>: "Parts arrived, repairing drainage pipe now."
+                </p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative pl-4">
+<div class="absolute -left-[13px] top-0.5 w-3 h-3 rounded-full bg-surface-container-highest ring-4 ring-surface-container-lowest"></div>
+<div class="flex items-baseline justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Assigned to Ramesh Patel</span>
+<span class="font-numeric-data text-numeric-data text-outline text-label-sm">09:30 AM</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Action taken by <span class="font-semibold text-on-surface">Anand Verma (Admin)</span> via Operations Console.
+                </p>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative pl-4">
+<div class="absolute -left-[13px] top-0.5 w-3 h-3 rounded-full bg-primary-fixed-dim ring-4 ring-surface-container-lowest"></div>
+<div class="flex items-baseline justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Ticket Created</span>
+<span class="font-numeric-data text-numeric-data text-outline text-label-sm">08:15 AM</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  Reported by resident <span class="font-semibold text-on-surface">Manish Varma</span>. Category tagged as AC / Appliance (Priority: HIGH).
+                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

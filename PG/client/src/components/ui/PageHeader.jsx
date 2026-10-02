@@ -1,0 +1,2 @@
+const PageHeader = ({ eyebrow, title, description, actions }) => <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"><div>{eyebrow && <p className="mb-1 text-label-sm font-semibold uppercase tracking-wider text-primary">{eyebrow}</p>}<h1 className="font-headline text-headline-xl font-bold tracking-tight text-on-surface">{title}</h1>{description && <p className="mt-1 max-w-2xl text-body-md text-on-surface-variant">{description}</p>}</div>{actions && <div className="flex flex-wrap gap-2">{actions}</div>}</div>;
+export default PageHeader;

@@ -1,0 +1,9 @@
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import EmptyState from '../components/ui/EmptyState';
+import Skeleton from '../components/ui/Skeleton';
+import StatusBadge from '../components/ui/StatusBadge';
+
+const DesignPreview = () => <main className="min-h-screen bg-background px-6 py-10"><div className="mx-auto max-w-5xl space-y-10"><div><p className="text-label-sm font-semibold uppercase tracking-wider text-primary">NestOps design system</p><h1 className="mt-2 font-headline text-3xl font-bold">Component preview</h1><p className="mt-2 text-body-md text-on-surface-variant">Reference states for the shared UI foundation.</p></div><Card className="p-6"><h2 className="font-headline text-headline-md font-semibold">Buttons</h2><div className="mt-4 flex flex-wrap gap-3"><Button icon="add">Primary action</Button><Button variant="secondary">Secondary</Button><Button variant="ghost">Ghost</Button><Button variant="danger" icon="warning">Destructive</Button><Button loading>Loading</Button><Button disabled>Disabled</Button></div></Card><Card className="p-6"><h2 className="font-headline text-headline-md font-semibold">Status and content states</h2><div className="mt-4 flex flex-wrap gap-2"><StatusBadge status="PAID" /><StatusBadge status="PENDING" /><StatusBadge status="OVERDUE" /><StatusBadge status="IN_PROGRESS" /><StatusBadge status="CLOSED" /></div><div className="mt-6 grid gap-4 md:grid-cols-3"><div><p className="mb-2 text-label-md">Loading</p><Skeleton className="h-24" /></div><div><p className="mb-2 text-label-md">Empty</p><EmptyState title="No residents yet" description="New residents will appear here." /></div><div><p className="mb-2 text-label-md">Card</p><Card className="p-4"><Skeleton className="h-3 w-2/3" /><Skeleton className="mt-3 h-8 w-1/2" /></Card></div></div></Card></div></main>;
+
+export default DesignPreview;
