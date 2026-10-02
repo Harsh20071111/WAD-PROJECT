@@ -20,7 +20,7 @@ const PublicLayout = () => {
             }>Home</NavLink>
             <NavLink to="/rooms" className={({ isActive }) =>
               `px-3 py-1.5 rounded-lg text-body-md transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`
-            }>Rooms</NavLink>
+            }>Find PGs</NavLink>
             <NavLink to="/contact" className={({ isActive }) =>
               `px-3 py-1.5 rounded-lg text-body-md transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`
             }>Contact</NavLink>
@@ -28,7 +28,7 @@ const PublicLayout = () => {
 
           <div className="flex items-center gap-2">
             <Link to="/login" className="hidden text-label-md text-on-surface-variant hover:text-primary sm:inline">Login</Link>
-            <Link to="/rooms" className="btn-primary min-h-10 text-sm"><Icon name="bed" size={16} />Check Available Rooms</Link>
+            <Link to="/rooms" className="btn-primary min-h-10 text-sm"><Icon name="search" size={16} />Explore PGs</Link>
           </div>
         </div>
       </header>

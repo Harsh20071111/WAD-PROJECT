@@ -9,6 +9,18 @@ const Resident = require('../models/Resident');
 
 const router = express.Router();
 
+router.get('/public', async (req, res, next) => {
+  try {
+    const { city } = req.query;
+    const filter = {};
+    if (city) {
+      filter['address.city'] = { $regex: city, $options: 'i' };
+    }
+    const pgs = await PG.find(filter).select('-graceDays -finePerDay -ownerId').lean();
+    res.json({ success: true, data: pgs });
+  } catch (error) { next(error); }
+});
+
 router.use(protect);
 
 router.get('/mine', async (req, res, next) => {
