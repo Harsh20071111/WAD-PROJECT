@@ -6,8 +6,6 @@ import Skeleton from '../../components/ui/Skeleton';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
 
-const PGSkeleton = () => <Card className="overflow-hidden"><Skeleton className="h-48 rounded-none" /><div className="space-y-3 p-5"><Skeleton className="h-5 w-2/3" /><Skeleton className="h-4 w-full" /><Skeleton className="h-10 w-full" /></div></Card>;
-
 const ExplorePGs = () => {
   const [pgs, setPgs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -98,6 +96,12 @@ const ExplorePGs = () => {
 
       <div className="flex flex-wrap items-center justify-center gap-3 mb-10 max-w-3xl mx-auto">
         <span className="text-label-sm text-on-surface-variant mr-1">Popular Cities:</span>
+        <button 
+          onClick={() => { setSearchCity(''); fetchPGs(''); }}
+          className={`px-4 py-1.5 rounded-full text-label-md transition-colors border ${!searchCity ? 'bg-primary border-primary text-on-primary font-semibold shadow-sm' : 'bg-surface-container-lowest border-outline-variant text-on-surface-variant hover:bg-surface-container-low'}`}
+        >
+          All PGs
+        </button>
         {['Ahmedabad', 'Hyderabad', 'Bangalore', 'Pune', 'Delhi'].map(city => (
           <button 
             key={city}
@@ -111,8 +115,8 @@ const ExplorePGs = () => {
 
       {/* ── PG Grid ── */}
       {loading ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => <PGSkeleton key={index} />)}
+        <div className="py-20 text-center">
+          {/* Blank as requested by user when loading */}
         </div>
       ) : error ? (
         <div className="py-16 text-center">
