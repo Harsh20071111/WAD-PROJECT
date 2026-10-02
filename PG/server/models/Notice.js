@@ -26,7 +26,14 @@ const noticeSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
-    }
+    },
+    audience: {
+      type: { type: String, enum: ['ALL', 'RESIDENTS', 'STAFF', 'FLOOR'], default: 'ALL' },
+      floor: { type: Number, default: null }
+    },
+    isPinned: { type: Boolean, default: false },
+    isUrgent: { type: Boolean, default: false },
+    scheduledFor: { type: Date, default: null }
   },
   {
     timestamps: true
@@ -36,5 +43,6 @@ const noticeSchema = new mongoose.Schema(
 // Indexes
 noticeSchema.index({ pgId: 1 });
 noticeSchema.index({ pgId: 1, isActive: 1 });
+noticeSchema.index({ pgId: 1, scheduledFor: 1 });
 
 module.exports = mongoose.model('Notice', noticeSchema);

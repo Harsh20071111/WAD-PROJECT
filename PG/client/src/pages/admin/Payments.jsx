@@ -1,173 +1,237 @@
-import { useState } from 'react';
-import DataTable from '../../components/DataTable';
+import { useEffect, useState } from 'react';
 import StatusBadge from '../../components/StatusBadge';
-import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-
-const MOCK_PAYMENTS = [
-  { _id: '1', resident: 'Priya Sharma', room: '103-C', month: '2026-10', amount: 5500, paidAmount: 5500, dueDate: '2026-10-05', status: 'PAID', method: 'UPI', paidAt: '2026-10-03' },
-  { _id: '2', resident: 'Arjun Mehta', room: '203-C', month: '2026-10', amount: 6000, paidAmount: 0, dueDate: '2026-10-05', status: 'PENDING', method: '', paidAt: '' },
-  { _id: '3', resident: 'Priya Sharma', room: '103-C', month: '2026-09', amount: 5500, paidAmount: 5500, dueDate: '2026-09-05', status: 'PAID', method: 'Card', paidAt: '2026-09-04' },
-  { _id: '4', resident: 'Arjun Mehta', room: '203-C', month: '2026-09', amount: 6000, paidAmount: 6000, dueDate: '2026-09-05', status: 'PAID', method: 'UPI', paidAt: '2026-09-02' },
-  { _id: '5', resident: 'Sneha Patel', room: '—', month: '2026-10', amount: 7000, paidAmount: 0, dueDate: '2026-10-05', status: 'OVERDUE', method: '', paidAt: '' },
-];
-
-const fmtINR = (v) => `₹${Number(v).toLocaleString('en-IN')}`;
-const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-const fmtMonth = (m) => m ? new Date(m + '-01').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : '—';
+import { getPayments, runRent, applyLateFees, recordManualPayment, updateLateFeeConfig, getMyPG, getResidents } from '../../services/management';
 
 const Payments = () => {
-  const [tab, setTab] = useState('ALL');
-  const [manualOpen, setManualOpen] = useState(false);
+  const [items, setItems] = useState([]);
+  const [pgConfig, setPgConfig] = useState({ graceDays: 5, finePerDay: 50 });
+  const [residents, setResidents] = useState([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState('');
+  const [actionMessage, setActionMessage] = useState('');
 
-  const tabs = ['ALL', 'PAID', 'PENDING', 'OVERDUE'];
-  const filtered = tab === 'ALL' ? MOCK_PAYMENTS : MOCK_PAYMENTS.filter((p) => p.status === tab);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [manualForm, setManualForm] = useState({ residentId: '', amount: '', mode: 'UPI', utr: '' });
 
-  const totalCollected = MOCK_PAYMENTS.filter((p) => p.status === 'PAID').reduce((s, p) => s + p.paidAmount, 0);
-  const totalOverdue = MOCK_PAYMENTS.filter((p) => p.status === 'OVERDUE').reduce((s, p) => s + p.amount, 0);
-  const totalPending = MOCK_PAYMENTS.filter((p) => p.status === 'PENDING').reduce((s, p) => s + p.amount, 0);
+  const load = async () => {
+    try {
+      const [paymentsData, pgData, resData] = await Promise.all([
+        getPayments(),
+        getMyPG(),
+        getResidents()
+      ]);
+      setItems(paymentsData);
+      if (pgData) {
+        setPgConfig({ graceDays: pgData.graceDays ?? 5, finePerDay: pgData.finePerDay ?? 50 });
+      }
+      setResidents(resData.filter(r => r.status === 'ACTIVE'));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to load payments.');
+    }
+  };
 
-  const columns = [
-    {
-      key: 'resident', label: 'Resident',
-      render: (v, row) => (
-        <div>
-          <p className="font-semibold text-on-surface">{v}</p>
-          <p className="text-label-sm text-on-surface-variant">{row.room}</p>
-        </div>
-      ),
-    },
-    { key: 'month', label: 'Month', render: (v) => fmtMonth(v) },
-    { key: 'amount', label: 'Rent Due', render: (v) => <span className="tabular-nums font-semibold">{fmtINR(v)}</span> },
-    { key: 'paidAmount', label: 'Paid', render: (v) => <span className="tabular-nums">{fmtINR(v)}</span> },
-    { key: 'dueDate', label: 'Due Date', render: (v) => fmtDate(v) },
-    { key: 'method', label: 'Method', render: (v) => v || '—' },
-    { key: 'paidAt', label: 'Paid On', render: (v) => fmtDate(v) },
-    { key: 'status', label: 'Status', render: (v) => <StatusBadge status={v} /> },
-    {
-      key: '_id', label: 'Actions',
-      render: (_, row) => (
-        <div className="flex items-center gap-1">
-          {row.status === 'PAID' && (
-            <button className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors" title="Receipt">
-              <Icon name="receipt_long" size={16} />
-            </button>
-          )}
-          {(row.status === 'PENDING' || row.status === 'OVERDUE') && (
-            <button className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-secondary transition-colors" title="Mark Paid">
-              <Icon name="add_card" size={16} />
-            </button>
-          )}
-        </div>
-      ),
-    },
-  ];
+  useEffect(() => {
+    load();
+    const timer = setInterval(load, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleRunRent = async () => {
+    if (!window.confirm("Run rent generation for this month?")) return;
+    setActionLoading('rent');
+    setActionMessage('');
+    try {
+      const res = await runRent();
+      setActionMessage(`Rent Run Complete: Generated ${res.generated} invoices. Skipped ${res.skipped} duplicates. Total Amount: ₹${res.totalAmount}`);
+      load();
+    } catch (err) {
+      setActionMessage(`Error: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleApplyLateFees = async () => {
+    setActionLoading('late');
+    setActionMessage('');
+    try {
+      await applyLateFees();
+      setActionMessage('Late fees applied successfully to overdue invoices.');
+      load();
+    } catch (err) {
+      setActionMessage(`Error: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleUpdateConfig = async (e) => {
+    e.preventDefault();
+    setActionLoading('config');
+    try {
+      await updateLateFeeConfig(pgConfig);
+      setShowConfigModal(false);
+      setActionMessage('Late fee config updated successfully.');
+      load();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update config');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const handleManualPayment = async (e) => {
+    e.preventDefault();
+    setActionLoading('manual');
+    try {
+      await recordManualPayment({
+        ...manualForm,
+        amount: Number(manualForm.amount)
+      });
+      setShowManualModal(false);
+      setManualForm({ residentId: '', amount: '', mode: 'UPI', utr: '' });
+      setActionMessage('Manual payment recorded successfully.');
+      load();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to record payment');
+    } finally {
+      setActionLoading('');
+    }
+  };
+
+  const getDaysOverdue = (payment) => {
+    if (payment.status === 'PAID') return 0;
+    const due = new Date(payment.dueDate);
+    const today = new Date();
+    due.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    if (today <= due) return 0;
+    const diff = Math.abs(today - due);
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
 
   return (
     <div className="flex flex-col w-full space-y-space-lg">
-      <div className="page-header">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-label-sm text-outline uppercase tracking-wider">Finance & Accounts</span>
-            <span className="text-outline-variant">/</span>
-            <span className="text-label-sm text-primary font-semibold uppercase tracking-wider">Ledger & Settlements</span>
-          </div>
-          <h1 className="font-headline font-bold text-headline-xl text-on-surface">Rent & Payment Ledger</h1>
-          <p className="text-body-md text-on-surface-variant mt-0.5">Automated billing, reconciliations, receipts & overdue recovery</p>
+          <h1 className="font-headline font-bold text-headline-xl text-on-surface">Rent & Payments</h1>
+          <p className="text-body-md text-on-surface-variant">Live payment ledger and Razorpay settlement status.</p>
         </div>
-        <div className="flex items-center gap-space-sm">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-container text-on-surface-variant">
-            <Icon name="schedule" size={18} className="text-primary" />
-            <span className="text-label-md text-on-surface">Next auto-run in 12 days</span>
-          </div>
-          <button className="btn-primary" onClick={() => setManualOpen(true)}>
-            <Icon name="add_card" size={18} />
-            Record Manual Payment
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setShowConfigModal(true)} className="btn-secondary">
+            <Icon name="settings" size={18} /> Config Late Fees
+          </button>
+          <button onClick={handleApplyLateFees} disabled={!!actionLoading} className="btn-secondary">
+            {actionLoading === 'late' ? 'Applying...' : 'Apply Late Fees'}
+          </button>
+          <button onClick={() => setShowManualModal(true)} className="btn-secondary">
+            <Icon name="payments" size={18} /> Record Offline
+          </button>
+          <button onClick={handleRunRent} disabled={!!actionLoading} className="btn-primary">
+            {actionLoading === 'rent' ? 'Running...' : "Run this month's rent"}
           </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
-        <StatCard title="Oct 2026 Collection" value="₹6,48,000" icon="account_balance_wallet" iconBg="bg-primary-fixed" iconColor="text-on-primary-fixed">
-          <div className="mt-3 bg-surface-container-low p-2 rounded-lg">
-            <div className="flex items-center justify-between text-label-sm mb-1">
-              <span className="text-on-surface-variant">Collection Target</span>
-              <span className="text-primary font-bold">79% achieved</span>
-            </div>
-            <div className="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
-              <div className="bg-primary h-full rounded-full" style={{ width: '79%' }} />
-            </div>
-          </div>
-        </StatCard>
+      {error && <div className="p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">{error}</div>}
+      {actionMessage && <div className="p-3 rounded-lg bg-primary-container text-on-primary-container text-body-sm">{actionMessage}</div>}
 
-        <StatCard title="Total Overdue" value={<span className="text-error">₹42,500</span>} icon="warning" iconBg="bg-error-container" iconColor="text-on-error-container">
-          <div className="mt-3 flex items-center justify-between bg-error-container/30 p-2 rounded-lg text-body-sm">
-            <span className="text-on-surface-variant flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-error" />1 resident overdue
-            </span>
-            <button className="text-label-sm text-error font-semibold hover:underline flex items-center gap-0.5">
-              Send SMS <Icon name="arrow_forward" size={13} />
-            </button>
-          </div>
-        </StatCard>
-
-        <StatCard title="Security Deposits" value="₹16,80,000" icon="lock" iconBg="bg-secondary-fixed" iconColor="text-on-secondary-fixed" subtitle="Protected PG corpus" />
-
-        <StatCard title="Gateway Payouts" value="₹5,80,000" icon="account_balance" iconBg="bg-surface-container" iconColor="text-tertiary" subtitle="Settled · HDFC A/c ••4912" />
+      <div className="section-card overflow-x-auto">
+        <table className="w-full text-body-sm">
+          <thead>
+            <tr className="text-left text-label-sm text-on-surface-variant">
+              <th className="p-3">Resident</th>
+              <th className="p-3">Month</th>
+              <th className="p-3">Total Amount</th>
+              <th className="p-3">Paid</th>
+              <th className="p-3">Due Date</th>
+              <th className="p-3">Overdue Aging</th>
+              <th className="p-3">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => {
+              const daysOverdue = getDaysOverdue(item);
+              const isOverdue = daysOverdue > 0 && item.status !== 'PAID';
+              return (
+                <tr key={item._id} className="border-t border-outline-variant/40">
+                  <td className="p-3 font-semibold">{item.residentId?.userId?.name || 'Resident'}</td>
+                  <td className="p-3">{item.month}</td>
+                  <td className="p-3">₹{item.amount?.toLocaleString('en-IN')}</td>
+                  <td className="p-3">₹{item.paidAmount?.toLocaleString('en-IN')}</td>
+                  <td className="p-3">{new Date(item.dueDate).toLocaleDateString('en-IN')}</td>
+                  <td className="p-3">
+                    {isOverdue ? (
+                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${daysOverdue > pgConfig.graceDays ? 'bg-error text-on-error' : 'bg-orange-500/20 text-orange-600'}`}>
+                        {daysOverdue} days
+                      </span>
+                    ) : '-'}
+                  </td>
+                  <td className="p-3"><StatusBadge status={item.status} /></td>
+                </tr>
+              );
+            })}
+            {!items.length && <tr><td colSpan="7" className="p-10 text-center text-on-surface-variant">No payments found.</td></tr>}
+          </tbody>
+        </table>
       </div>
 
-      {/* Table */}
-      <div className="section-card">
-        {/* Tabs */}
-        <div className="flex gap-1 mb-space-md overflow-x-auto pb-1">
-          {tabs.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-3 py-1.5 rounded-lg text-label-md font-medium whitespace-nowrap transition-all
-                ${tab === t ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}
-            >
-              {t === 'ALL' ? `All Payments (${MOCK_PAYMENTS.length})` : `${t.replace('_', ' ')} (${MOCK_PAYMENTS.filter((p) => p.status === t).length})`}
-            </button>
-          ))}
-        </div>
+      <Modal open={showConfigModal} onClose={() => setShowConfigModal(false)} title="Late Fee Configuration">
+        <form onSubmit={handleUpdateConfig} className="space-y-4">
+          <div>
+            <label className="label">Grace Period (Days)</label>
+            <input type="number" required min="0" className="input" value={pgConfig.graceDays} onChange={e => setPgConfig({...pgConfig, graceDays: Number(e.target.value)})} />
+            <p className="text-xs text-on-surface-variant mt-1">Number of days after due date before fines apply.</p>
+          </div>
+          <div>
+            <label className="label">Fine Per Day (₹)</label>
+            <input type="number" required min="0" className="input" value={pgConfig.finePerDay} onChange={e => setPgConfig({...pgConfig, finePerDay: Number(e.target.value)})} />
+          </div>
+          <div className="flex justify-end gap-2 pt-4 border-t border-outline-variant/30">
+            <button type="button" className="btn-secondary" onClick={() => setShowConfigModal(false)}>Cancel</button>
+            <button type="submit" disabled={actionLoading === 'config'} className="btn-primary">Save Config</button>
+          </div>
+        </form>
+      </Modal>
 
-        <DataTable columns={columns} data={filtered} emptyMessage="No payments found" emptyIcon="receipt_long" />
-      </div>
-
-      {/* Manual payment modal */}
-      <Modal
-        open={manualOpen}
-        onClose={() => setManualOpen(false)}
-        title="Record Manual Payment"
-        footer={
-          <>
-            <button className="btn-secondary" onClick={() => setManualOpen(false)}>Cancel</button>
-            <button className="btn-primary"><Icon name="save" size={16} />Record Payment</button>
-          </>
-        }
-      >
-        <div className="space-y-4">
+      <Modal open={showManualModal} onClose={() => setShowManualModal(false)} title="Record Offline Payment">
+        <form onSubmit={handleManualPayment} className="space-y-4">
           <div>
             <label className="label">Resident</label>
-            <select className="input">
-              <option>Priya Sharma — Room 103-C</option>
-              <option>Arjun Mehta — Room 203-C</option>
+            <select required className="input" value={manualForm.residentId} onChange={e => setManualForm({...manualForm, residentId: e.target.value})}>
+              <option value="">Select a resident...</option>
+              {residents.map(r => (
+                <option key={r._id} value={r._id}>{r.userId?.name} (Room {r.roomId?.roomNumber})</option>
+              ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="label">Month</label><input className="input" type="month" defaultValue="2026-10" /></div>
-            <div><label className="label">Amount (₹)</label><input className="input" type="number" placeholder="5500" /></div>
-            <div><label className="label">Payment Method</label>
-              <select className="input"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select>
-            </div>
-            <div><label className="label">Date Paid</label><input className="input" type="date" /></div>
+          <div>
+            <label className="label">Amount Paid (₹)</label>
+            <input type="number" required min="1" className="input" value={manualForm.amount} onChange={e => setManualForm({...manualForm, amount: e.target.value})} />
           </div>
-          <div><label className="label">Transaction Reference</label><input className="input" placeholder="UTR / reference number" /></div>
-          <div><label className="label">Notes</label><textarea className="input" rows={2} placeholder="Optional notes" /></div>
-        </div>
+          <div>
+            <label className="label">Payment Mode</label>
+            <select className="input" value={manualForm.mode} onChange={e => setManualForm({...manualForm, mode: e.target.value})}>
+              <option value="UPI">UPI</option>
+              <option value="CASH">Cash</option>
+              <option value="BANK">Bank Transfer</option>
+            </select>
+          </div>
+          {manualForm.mode === 'UPI' && (
+            <div>
+              <label className="label">UTR / Reference Number *</label>
+              <input type="text" required className="input" value={manualForm.utr} onChange={e => setManualForm({...manualForm, utr: e.target.value})} />
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-4 border-t border-outline-variant/30">
+            <button type="button" className="btn-secondary" onClick={() => setShowManualModal(false)}>Cancel</button>
+            <button type="submit" disabled={actionLoading === 'manual'} className="btn-primary">Record Payment</button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

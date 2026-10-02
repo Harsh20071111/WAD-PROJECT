@@ -20,8 +20,7 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     callback(new Error(`CORS: origin ${origin} not allowed`));
@@ -35,11 +34,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth',       require('./routes/authRoutes'));
-app.use('/api/residents',  require('./routes/residentRoutes'));
-app.use('/api/notices',    require('./routes/noticeRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/pg', require('./routes/pgRoutes'));
+app.use('/api/rooms', require('./routes/roomRoutes'));
+app.use('/api/residents', require('./routes/residentRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
-app.use('/api/feedback',   require('./routes/feedbackRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/staff', require('./routes/staffRoutes'));
+app.use('/api/notices', require('./routes/noticeRoutes'));
+app.use('/api/enquiries', require('./routes/enquiryRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/receipts', require('./routes/receiptRoutes'));
 
 // SLA Breach Cron Job (checks every 5 mins)
 require('./utils/slaCron').initSlaCron();
@@ -61,7 +67,7 @@ app.use((req, res) => {
 // ─── Global error handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+  const statusCode = err.statusCode || err.status || (res.statusCode !== 200 ? res.statusCode : 500);
   res.status(statusCode).json({
     success: false,
     message: err.message || 'Internal Server Error',

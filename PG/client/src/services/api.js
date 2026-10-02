@@ -93,7 +93,13 @@ function _clearSession() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
-  window.location.href = '/login';
+  // Only redirect to /login if the user is on a protected route.
+  // Public pages (/, /rooms, /contact) should remain accessible.
+  const publicPaths = ['/', '/rooms', '/contact', '/login'];
+  const currentPath = window.location.pathname;
+  if (!publicPaths.some((p) => currentPath === p || (p !== '/' && currentPath.startsWith(p)))) {
+    window.location.href = '/login';
+  }
 }
 
 export default api;

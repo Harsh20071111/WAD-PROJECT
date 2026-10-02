@@ -16,6 +16,7 @@ router.use(protect);
 router.post('/', restrictTo('RESIDENT'), uploadArray, createComplaint);
 router.get('/', getComplaints);
 router.get('/:id', getComplaintById);
+router.patch('/:id', restrictTo('STAFF', 'ADMIN'), updateComplaintStatus);
 router.patch('/:id/status', restrictTo('STAFF', 'ADMIN'), updateComplaintStatus);
 router.post('/:id/reopen', restrictTo('RESIDENT'), reopenComplaint);
 

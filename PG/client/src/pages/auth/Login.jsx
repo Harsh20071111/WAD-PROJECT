@@ -187,10 +187,8 @@ const Login = () => {
           </form>
 
           <p className="text-center text-body-sm text-on-surface-variant">
-            Need an account?{' '}
-            <Link to="/register" className="text-primary font-semibold hover:underline">Register</Link>
-            {' '}or{' '}
-            <Link to="/contact" className="text-primary font-semibold hover:underline">contact admin</Link>
+            Only an administrator can create resident accounts.{' '}
+            <Link to="/contact" className="text-primary font-semibold hover:underline">Contact admin</Link>
           </p>
         </div>
       </div>

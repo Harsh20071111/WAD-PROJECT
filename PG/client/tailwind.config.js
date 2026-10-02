@@ -59,6 +59,14 @@ export default {
 
         outline: '#6e7977',
         'outline-variant': '#bdc9c6',
+
+        status: {
+          success: '#047857',
+          warning: '#b45309',
+          error: '#be123c',
+          info: '#0369a1',
+          neutral: '#3e4947',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

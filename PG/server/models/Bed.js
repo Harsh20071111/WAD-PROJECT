@@ -20,9 +20,12 @@ const bedSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['AVAILABLE', 'OCCUPIED'],
+      enum: ['AVAILABLE', 'OCCUPIED', 'UNDER_NOTICE', 'BLOCKED', 'MAINTENANCE'],
       default: 'AVAILABLE'
     },
+    statusNote: { type: String, trim: true, default: '' },
+    statusChangedAt: { type: Date, default: Date.now },
+    statusChangedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     residentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Resident',

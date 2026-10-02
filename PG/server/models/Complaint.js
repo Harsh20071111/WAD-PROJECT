@@ -67,7 +67,7 @@ const complaintSchema = new mongoose.Schema(
     },
     slaDueAt: {
       type: Date,
-      required: true
+      default: null
     },
     breachedAt: {
       type: Date,
@@ -80,6 +80,10 @@ const complaintSchema = new mongoose.Schema(
     resolvedAt: {
       type: Date,
       default: null
+    },
+    requiresFeedback: {
+      type: Boolean,
+      default: false
     },
     timeline: [
       {

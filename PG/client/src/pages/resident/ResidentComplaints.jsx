@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
+import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
 
@@ -230,6 +230,7 @@ const ResidentComplaints = () => {
           </div>
         </form>
       </Modal>
+
     </div>
   );
 };

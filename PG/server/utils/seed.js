@@ -1,8 +1,5 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-
-// Import models
 const User = require('../models/User');
 const PG = require('../models/PG');
 const Room = require('../models/Room');
@@ -10,361 +7,92 @@ const Bed = require('../models/Bed');
 const Resident = require('../models/Resident');
 const Staff = require('../models/Staff');
 const Payment = require('../models/Payment');
+const PaymentReceipt = require('../models/PaymentReceipt');
 const Category = require('../models/Category');
 const Notice = require('../models/Notice');
 const Enquiry = require('../models/Enquiry');
+const Complaint = require('../models/Complaint');
+const ComplaintUpdate = require('../models/ComplaintUpdate');
+const Feedback = require('../models/Feedback');
+const Notification = require('../models/Notification');
 const Counter = require('../models/Counter');
 
-// Seed data
-const DEFAULT_CATEGORIES = [
-  'Electrical', 'Plumbing', 'Cleaning', 'Furniture', 'Wi-Fi',
-  'AC', 'Fan', 'Water', 'Room Maintenance', 'Bathroom',
-  'Security', 'Carpentry', 'Pest Control', 'Common Area', 'Other'
+const CATEGORIES = ['Electrical', 'Plumbing', 'Cleaning', 'Furniture', 'Wi-Fi', 'AC', 'Fan', 'Water', 'Room Maintenance', 'Bathroom', 'Security', 'Carpentry', 'Pest Control', 'Common Area', 'Other'];
+const ROOM_CONFIG = [
+  { floor: 1, roomNumber: '101', type: 'SINGLE', capacity: 1, rent: 8000 },
+  { floor: 1, roomNumber: '102', type: 'DOUBLE', capacity: 2, rent: 6500 },
+  { floor: 1, roomNumber: '103', type: 'TRIPLE', capacity: 3, rent: 5500 },
+  { floor: 1, roomNumber: '104', type: 'SINGLE', capacity: 1, rent: 8000 },
+  { floor: 2, roomNumber: '201', type: 'SINGLE', capacity: 1, rent: 8500 },
+  { floor: 2, roomNumber: '202', type: 'DOUBLE', capacity: 2, rent: 7000 },
+  { floor: 2, roomNumber: '203', type: 'TRIPLE', capacity: 3, rent: 6000 }
 ];
+const PASSWORDS = { admin: 'Admin@1234', staff: 'Staff@1234', resident: 'Resident@1234' };
+const dateAt = (offsetDays) => new Date(Date.now() + offsetDays * 86400000);
+const monthAt = (offset) => { const date = new Date(); date.setMonth(date.getMonth() + offset); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; };
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+async function clearDatabase() {
+  const models = [Counter, Notice, Enquiry, PaymentReceipt, Payment, Feedback, ComplaintUpdate, Complaint, Notification, Staff, Resident, Bed, Room, Category, PG, User];
+  await Promise.all(models.map((model) => model.deleteMany({})));
+}
+async function createUser(data, password) { return User.create({ ...data, passwordHash: password, isActive: true }); }
+
+async function seed() {
+  const admin = await createUser({ name: 'PG Admin', email: 'admin@pgmanage.com', phone: '+91 9800000001', role: 'ADMIN' }, PASSWORDS.admin);
+  const pg = await PG.create({ name: 'Sunrise PG', address: { street: '12 MG Road', city: 'Bangalore', state: 'Karnataka', pincode: '560001' }, contact: { phone: '+91 8000000001', email: 'admin@pgmanage.com' }, amenities: ['Wi-Fi', 'Power Backup', 'CCTV', 'Hot Water', 'Laundry', 'Parking'], ownerId: admin._id });
+  admin.pgId = pg._id; await admin.save();
+
+  const rooms = []; const beds = [];
+  for (const config of ROOM_CONFIG) {
+    const room = await Room.create({ pgId: pg._id, ...config, amenities: ['Wi-Fi', 'Attached Bathroom'] }); rooms.push(room);
+    for (let index = 0; index < config.capacity; index += 1) beds.push(await Bed.create({ pgId: pg._id, roomId: room._id, label: String.fromCharCode(65 + index), status: 'AVAILABLE' }));
   }
-};
+  await Category.insertMany(CATEGORIES.map((name) => ({ pgId: pg._id, name, isDefault: true })));
+  const staffUsers = await Promise.all([
+    createUser({ name: 'Ravi Kumar', email: 'ravi@sunrise.pg', phone: '+91 9100000001', role: 'STAFF', pgId: pg._id }, PASSWORDS.staff),
+    createUser({ name: 'Suresh Nair', email: 'suresh@sunrise.pg', phone: '+91 9100000002', role: 'STAFF', pgId: pg._id }, PASSWORDS.staff)
+  ]);
+  await Staff.insertMany(staffUsers.map((user, index) => ({ userId: user._id, pgId: pg._id, categories: index ? ['Cleaning', 'Furniture', 'Wi-Fi'] : ['Electrical', 'Plumbing', 'AC'] })));
 
-const clearDatabase = async () => {
-  console.log('🗑️  Clearing database...');
-  const collections = [
-    Counter, Notice, Enquiry, Payment, Staff, Resident, Bed, Room, Category, PG, User
-  ];
-  for (const model of collections) {
-    await model.deleteMany({});
+  const residentData = [['Priya Sharma', 'priya@resident.com', 'FEMALE'], ['Arjun Mehta', 'arjun@resident.com', 'MALE'], ['Aarav Shah', 'aarav@resident.com', 'MALE'], ['Meera Joshi', 'meera@resident.com', 'FEMALE'], ['Kabir Singh', 'kabir@resident.com', 'MALE'], ['Isha Patel', 'isha@resident.com', 'FEMALE'], ['Rohan Das', 'rohan@resident.com', 'MALE'], ['Nisha Rao', 'nisha@resident.com', 'FEMALE']];
+  const residentUsers = await Promise.all(residentData.map(([name, email], index) => createUser({ name, email, phone: `+91 92000000${String(index + 1).padStart(2, '0')}`, role: 'RESIDENT', pgId: pg._id }, PASSWORDS.resident)));
+  const assignmentBeds = beds.slice(0, residentUsers.length - 1); const residents = [];
+  for (let index = 0; index < residentUsers.length; index += 1) {
+    const bed = assignmentBeds[index]; const room = bed ? rooms.find((item) => String(item._id) === String(bed.roomId)) : null;
+    residents.push(await Resident.create({ userId: residentUsers[index]._id, pgId: pg._id, gender: residentData[index][2], address: 'Demo resident address', joiningDate: new Date('2025-01-01'), roomId: room?._id || null, bedId: bed?._id || null, monthlyRent: room?.rent || 5500, securityDeposit: (room?.rent || 5500) * 2, status: 'ACTIVE' }));
+    if (bed) { bed.residentId = residents[index]._id; bed.status = index === 1 ? 'UNDER_NOTICE' : 'OCCUPIED'; bed.statusNote = index === 1 ? 'Move-out notice submitted' : ''; await bed.save(); }
   }
-  console.log('✅ Database cleared');
-};
+  const blockedBed = beds[beds.length - 1]; blockedBed.status = 'BLOCKED'; blockedBed.statusNote = 'Reserved for maintenance demo'; await blockedBed.save();
+  const maintenanceBed = beds[beds.length - 2]; maintenanceBed.status = 'MAINTENANCE'; maintenanceBed.statusNote = 'Fan replacement'; await maintenanceBed.save();
 
-const seedDatabase = async () => {
-  console.log('🌱 Starting seed process...\n');
+  const payments = await Payment.insertMany([
+    { pgId: pg._id, residentId: residents[0]._id, month: monthAt(-2), amount: 5500, dueDate: dateAt(-60), gracePeriodUntil: dateAt(-45), status: 'OVERDUE' },
+    { pgId: pg._id, residentId: residents[1]._id, month: monthAt(-1), amount: 6000, dueDate: dateAt(-30), gracePeriodUntil: dateAt(-15), status: 'OVERDUE' },
+    { pgId: pg._id, residentId: residents[2]._id, month: monthAt(-1), amount: 6500, dueDate: dateAt(-25), gracePeriodUntil: dateAt(2), status: 'OVERDUE' },
+    { pgId: pg._id, residentId: residents[0]._id, month: monthAt(0), amount: 5500, paidAmount: 5500, dueDate: dateAt(5), status: 'PAID', method: 'UPI', paidAt: dateAt(-2), transactionId: 'demo_txn_001' },
+    { pgId: pg._id, residentId: residents[3]._id, month: monthAt(0), amount: 5500, dueDate: dateAt(5), status: 'PENDING' }
+  ]);
+  const paid = payments[3];
+  await PaymentReceipt.create({ paymentId: paid._id, receiptNumber: 'RCP-DEMO-001', residentSnapshot: { name: residentData[0][0], email: residentData[0][1], phone: residentUsers[0].phone }, pgSnapshot: { name: pg.name, address: `${pg.address.street}, ${pg.address.city}` }, month: paid.month, amount: paid.amount, paidAt: paid.paidAt, transactionId: paid.transactionId });
+  await Notice.insertMany([
+    { pgId: pg._id, title: 'Urgent water maintenance', body: 'Water supply will pause for two hours today.', createdBy: admin._id, isPinned: true, isUrgent: true, audience: { type: 'ALL' } },
+    { pgId: pg._id, title: 'Monthly rent reminder', body: 'Please clear dues before the fifth.', createdBy: admin._id, isPinned: true, audience: { type: 'RESIDENTS' } },
+    { pgId: pg._id, title: 'Floor 2 inspection', body: 'Inspection is scheduled for tomorrow.', createdBy: admin._id, audience: { type: 'FLOOR', floor: 2 }, scheduledFor: dateAt(-1) }
+  ]);
+  await Enquiry.insertMany([
+    { pgId: pg._id, name: 'Vikram Singh', phone: '+91 9400000001', email: 'vikram@email.com', message: 'Looking for a single room.', source: 'WEBSITE' },
+    { pgId: pg._id, name: 'Neha Gupta', phone: '+91 9400000002', email: 'neha@email.com', message: 'Interested in triple sharing.', source: 'REFERRAL' },
+    { pgId: pg._id, name: 'Dev Malhotra', phone: '+91 9400000003', email: 'dev@email.com', message: 'Asking about move-in dates.', source: 'PHONE', status: 'CONTACTED', followUpAt: dateAt(2) }
+  ]);
+  const staff = await Staff.findOne({ pgId: pg._id });
+  const activeComplaint = await Complaint.create({ pgId: pg._id, requestNo: 'REQ-DEMO-001', residentId: residents[0]._id, roomId: residents[0].roomId, category: 'Plumbing', priority: 'HIGH', title: 'Bathroom leak', description: 'Water is leaking near the basin.', attachments: [{ url: 'https://placehold.co/800x600?text=demo-photo', publicId: 'demo-photo-placeholder' }], status: 'IN_PROGRESS', assignedStaffId: staff._id, slaDueAt: dateAt(1) });
+  const resolvedComplaint = await Complaint.create({ pgId: pg._id, requestNo: 'REQ-DEMO-002', residentId: residents[1]._id, roomId: residents[1].roomId, category: 'Electrical', priority: 'MEDIUM', title: 'Light replacement', description: 'Ceiling light was replaced.', attachments: [], status: 'RESOLVED', assignedStaffId: staff._id, slaDueAt: dateAt(-4), resolvedAt: dateAt(-1), requiresFeedback: true });
+  await ComplaintUpdate.insertMany([{ complaintId: activeComplaint._id, fromStatus: 'NEW', toStatus: 'IN_PROGRESS', note: 'Assigned for demo', actorId: admin._id }, { complaintId: resolvedComplaint._id, fromStatus: 'IN_PROGRESS', toStatus: 'RESOLVED', note: 'Work completed', actorId: admin._id }]);
+  return { rooms: rooms.length, beds: beds.length, residents: residents.length, payments: payments.length, complaints: 2 };
+}
 
-  // 1. Create Admin User
-  const admin = await User.create({
-    name: 'PG Admin',
-    email: 'admin@pgmanage.com',
-    phone: '+91 9800000001',
-    passwordHash: 'Admin@1234',
-    role: 'ADMIN',
-    isActive: true
-  });
-  console.log('✅ Admin user created');
-
-  // 2. Create PG
-  const pg = await PG.create({
-    name: 'Sunrise PG',
-    address: {
-      street: '12 MG Road',
-      city: 'Bangalore',
-      state: 'Karnataka',
-      pincode: '560001'
-    },
-    contact: {
-      phone: '+91 8000000001',
-      email: 'admin@pgmanage.com'
-    },
-    amenities: ['Wi-Fi', 'Power Backup', 'CCTV', 'Hot Water', 'Laundry', 'Parking'],
-    photos: [],
-    ownerId: admin._id
-  });
-  console.log('✅ PG created');
-
-  // 3. Update Admin with pgId
-  admin.pgId = pg._id;
-  await admin.save();
-  console.log('✅ Admin linked to PG');
-
-  // 4. Create Rooms
-  const rooms = [];
-  const roomConfigs = [
-    { floor: 1, roomNumber: '101', type: 'SINGLE', capacity: 1, rent: 8000 },
-    { floor: 1, roomNumber: '102', type: 'DOUBLE', capacity: 2, rent: 6500 },
-    { floor: 1, roomNumber: '103', type: 'TRIPLE', capacity: 3, rent: 5500 },
-    { floor: 2, roomNumber: '201', type: 'SINGLE', capacity: 1, rent: 8500 },
-    { floor: 2, roomNumber: '202', type: 'DOUBLE', capacity: 2, rent: 7000 },
-    { floor: 2, roomNumber: '203', type: 'TRIPLE', capacity: 3, rent: 6000 }
-  ];
-
-  for (const config of roomConfigs) {
-    const room = await Room.create({
-      pgId: pg._id,
-      ...config,
-      amenities: ['Wi-Fi', 'Attached Bathroom'],
-      isActive: true
-    });
-    rooms.push(room);
-  }
-  console.log('✅ Rooms created (6 rooms across 2 floors)');
-
-  // 5. Create Beds
-  const beds = [];
-  const bedLabels = ['A', 'B', 'C', 'D'];
-
-  for (const room of rooms) {
-    for (let i = 0; i < room.capacity; i++) {
-      const bed = await Bed.create({
-        pgId: pg._id,
-        roomId: room._id,
-        label: bedLabels[i],
-        status: 'AVAILABLE',
-        residentId: null
-      });
-      beds.push(bed);
-    }
-  }
-  console.log('✅ Beds created (13 beds total)');
-
-  // 6. Create Default Categories
-  for (const catName of DEFAULT_CATEGORIES) {
-    await Category.create({
-      pgId: pg._id,
-      name: catName,
-      isDefault: true
-    });
-  }
-  console.log('✅ Default categories created (15 categories)');
-
-  // 7. Create Staff Users + Staff Docs
-  const staff1User = await User.create({
-    name: 'Ravi Kumar',
-    email: 'ravi@sunrise.pg',
-    phone: '+91 9100000001',
-    passwordHash: 'Staff@1234',
-    role: 'STAFF',
-    pgId: pg._id,
-    isActive: true
-  });
-  
-  await Staff.create({
-    userId: staff1User._id,
-    pgId: pg._id,
-    categories: ['Electrical', 'Plumbing', 'AC'],
-    isActive: true
-  });
-
-  const staff2User = await User.create({
-    name: 'Suresh Nair',
-    email: 'suresh@sunrise.pg',
-    phone: '+91 9100000002',
-    passwordHash: 'Staff@1234',
-    role: 'STAFF',
-    pgId: pg._id,
-    isActive: true
-  });
-  
-  await Staff.create({
-    userId: staff2User._id,
-    pgId: pg._id,
-    categories: ['Cleaning', 'Furniture', 'Wi-Fi'],
-    isActive: true
-  });
-  console.log('✅ Staff created (2 staff members)');
-
-  // 8. Create Resident Users + Resident Docs with bed assignment
-  // Resident 1 - Room 103, Bed C
-  const resident1User = await User.create({
-    name: 'Priya Sharma',
-    email: 'priya@resident.com',
-    phone: '+91 9200000001',
-    passwordHash: 'Resident@1234',
-    role: 'RESIDENT',
-    pgId: pg._id,
-    isActive: true
-  });
-
-  const room103 = rooms.find(r => r.roomNumber === '103');
-  const bedC103 = beds.find(b => b.roomId.toString() === room103._id.toString() && b.label === 'C');
-
-  const resident1 = await Resident.create({
-    userId: resident1User._id,
-    pgId: pg._id,
-    gender: 'FEMALE',
-    dob: new Date('1995-05-15'),
-    address: '45 Park Street, Delhi',
-    emergencyContact: {
-      name: 'Raj Sharma',
-      phone: '+91 9300000001',
-      relation: 'Father'
-    },
-    joiningDate: new Date('2025-01-01'),
-    roomId: room103._id,
-    bedId: bedC103._id,
-    monthlyRent: 5500,
-    securityDeposit: 11000,
-    status: 'ACTIVE'
-  });
-
-  // Mark bed as occupied
-  bedC103.status = 'OCCUPIED';
-  bedC103.residentId = resident1._id;
-  await bedC103.save();
-
-  // Resident 2 - Room 203, Bed C
-  const resident2User = await User.create({
-    name: 'Arjun Mehta',
-    email: 'arjun@resident.com',
-    phone: '+91 9200000002',
-    passwordHash: 'Resident@1234',
-    role: 'RESIDENT',
-    pgId: pg._id,
-    isActive: true
-  });
-
-  const room203 = rooms.find(r => r.roomNumber === '203');
-  const bedC203 = beds.find(b => b.roomId.toString() === room203._id.toString() && b.label === 'C');
-
-  const resident2 = await Resident.create({
-    userId: resident2User._id,
-    pgId: pg._id,
-    gender: 'MALE',
-    dob: new Date('1998-08-20'),
-    address: '78 Lake View, Mumbai',
-    emergencyContact: {
-      name: 'Sunita Mehta',
-      phone: '+91 9300000002',
-      relation: 'Mother'
-    },
-    joiningDate: new Date('2025-02-01'),
-    roomId: room203._id,
-    bedId: bedC203._id,
-    monthlyRent: 6000,
-    securityDeposit: 12000,
-    status: 'ACTIVE'
-  });
-
-  // Mark bed as occupied
-  bedC203.status = 'OCCUPIED';
-  bedC203.residentId = resident2._id;
-  await bedC203.save();
-
-  console.log('✅ Residents created (2 residents with bed assignments)');
-
-  // 9. Create Sample Payments
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const lastMonth = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0') || (now.getMonth() === 0 ? `${now.getFullYear() - 1}-12` : String(now.getMonth()).padStart(2, '0'))}`;
-
-  // Payments for Resident 1
-  await Payment.create({
-    pgId: pg._id,
-    residentId: resident1._id,
-    month: lastMonth,
-    amount: 5500,
-    paidAmount: 5500,
-    dueDate: new Date(now.getFullYear(), now.getMonth() - 1, 5),
-    status: 'PAID',
-    method: 'UPI',
-    paidAt: new Date(now.getFullYear(), now.getMonth() - 1, 3)
-  });
-
-  await Payment.create({
-    pgId: pg._id,
-    residentId: resident1._id,
-    month: currentMonth,
-    amount: 5500,
-    paidAmount: 0,
-    dueDate: new Date(now.getFullYear(), now.getMonth(), 5),
-    status: 'PENDING'
-  });
-
-  // Payments for Resident 2
-  await Payment.create({
-    pgId: pg._id,
-    residentId: resident2._id,
-    month: lastMonth,
-    amount: 6000,
-    paidAmount: 6000,
-    dueDate: new Date(now.getFullYear(), now.getMonth() - 1, 5),
-    status: 'PAID',
-    method: 'CARD',
-    paidAt: new Date(now.getFullYear(), now.getMonth() - 1, 4)
-  });
-
-  await Payment.create({
-    pgId: pg._id,
-    residentId: resident2._id,
-    month: currentMonth,
-    amount: 6000,
-    paidAmount: 0,
-    dueDate: new Date(now.getFullYear(), now.getMonth(), 5),
-    status: 'PENDING'
-  });
-
-  console.log('✅ Payments created (4 payment records)');
-
-  // 10. Create Sample Notices
-  await Notice.create({
-    pgId: pg._id,
-    title: 'Water Supply Maintenance',
-    body: 'Water supply will be unavailable on Sunday, 10 AM to 2 PM due to maintenance work. Please store sufficient water.',
-    createdBy: admin._id,
-    isActive: true
-  });
-
-  await Notice.create({
-    pgId: pg._id,
-    title: 'Monthly Rent Reminder',
-    body: 'Kindly pay your monthly rent before the 5th of every month to avoid late fees. Contact admin for any queries.',
-    createdBy: admin._id,
-    isActive: true
-  });
-
-  console.log('✅ Notices created (2 notices)');
-
-  // 11. Create Sample Enquiries
-  await Enquiry.create({
-    pgId: pg._id,
-    name: 'Vikram Singh',
-    phone: '+91 9400000001',
-    email: 'vikram@email.com',
-    moveInDate: new Date(now.getFullYear(), now.getMonth() + 1, 1),
-    message: 'Looking for a single room with attached bathroom. Need WiFi and parking facility.',
-    status: 'NEW'
-  });
-
-  await Enquiry.create({
-    pgId: pg._id,
-    name: 'Neha Gupta',
-    phone: '+91 9400000002',
-    email: 'neha@email.com',
-    moveInDate: new Date(now.getFullYear(), now.getMonth() + 1, 15),
-    message: 'Interested in triple sharing room. Need details about meals and laundry service.',
-    status: 'NEW'
-  });
-
-  console.log('✅ Enquiries created (2 enquiries)');
-
-  // Print credentials
-  console.log('\n' + '='.repeat(60));
-  console.log('🎉 SEED COMPLETED SUCCESSFULLY!');
-  console.log('='.repeat(60));
-  console.log('\n📋 Login Credentials:\n');
-  console.log('Admin:       admin@pgmanage.com    / Admin@1234');
-  console.log('Staff 1:     ravi@sunrise.pg       / Staff@1234');
-  console.log('Staff 2:     suresh@sunrise.pg     / Staff@1234');
-  console.log('Resident 1:  priya@resident.com    / Resident@1234');
-  console.log('Resident 2:  arjun@resident.com    / Resident@1234');
-  console.log('\n' + '='.repeat(60));
-};
-
-// Main execution
-const run = async () => {
-  await connectDB();
-  await clearDatabase();
-  await seedDatabase();
-  await mongoose.connection.close();
-  console.log('\n📊 Database connection closed');
-  process.exit(0);
-};
-
-run().catch((err) => {
-  console.error('❌ Seed error:', err);
-  process.exit(1);
-});
+(async () => {
+  try { await mongoose.connect(process.env.MONGO_URI); await clearDatabase(); const counts = await seed(); console.log(`Demo seed complete: ${counts.rooms} rooms, ${counts.beds} beds, ${counts.residents} residents, ${counts.payments} payments, ${counts.complaints} complaints.`); }
+  catch (error) { console.error('Seed failed:', error.message); process.exitCode = 1; }
+  finally { await mongoose.connection.close(); }
+})();

@@ -40,6 +40,8 @@ const enquirySchema = new mongoose.Schema(
       default: '',
       maxlength: [1000, 'Message cannot exceed 1000 characters']
     },
+    source: { type: String, trim: true, default: 'WEBSITE' },
+    followUpAt: { type: Date, default: null },
     status: {
       type: String,
       enum: ['NEW', 'CONTACTED', 'CONVERTED', 'CLOSED'],

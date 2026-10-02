@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 import ResidentLayout from './layouts/ResidentLayout';
+import StaffLayout from './layouts/StaffLayout';
 
 // Public pages
 import Home from './pages/public/Home';
@@ -14,7 +15,6 @@ import Contact from './pages/public/Contact';
 
 // Auth
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
 import DesignPreview from './pages/DesignPreview';
 
 // Admin pages
@@ -35,6 +35,7 @@ import MyRoom from './pages/resident/MyRoom';
 import ResidentPayments from './pages/resident/ResidentPayments';
 import ResidentComplaints from './pages/resident/ResidentComplaints';
 import ResidentNotices from './pages/resident/ResidentNotices';
+import StaffTasks from './pages/staff/Tasks';
 
 function App() {
   return (
@@ -48,9 +49,14 @@ function App() {
             <Route path="/contact" element={<Contact />} />
           </Route>
 
+          <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
+            <Route element={<StaffLayout />}>
+              <Route path="/staff/tasks" element={<StaffTasks />} />
+            </Route>
+          </Route>
+
           {/* Auth */}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/design-preview" element={<DesignPreview />} />
 
           {/* Admin routes */}

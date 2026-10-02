@@ -1,0 +1,33 @@
+import api from './api';
+
+const data = (response) => response.data.data;
+
+export const getComplaints = async () => data(await api.get('/complaints'));
+export const createComplaint = async (payload) => data(await api.post('/complaints', payload));
+export const updateComplaint = async (id, payload) => data(await api.patch(`/complaints/${id}`, payload));
+export const getStaff = async () => data(await api.get('/staff'));
+export const getResidents = async () => data(await api.get('/residents'));
+export const createResident = async (payload) => data(await api.post('/residents', payload));
+export const bulkImportResidents = async (payload) => data(await api.post('/residents/bulk', payload));
+export const getPayments = async () => data(await api.get('/payments'));
+export const createPayment = async (payload) => data(await api.post('/payments', payload));
+export const getMyPayments = async () => data(await api.get('/payments/mine'));
+export const createPaymentOrder = async (id) => data(await api.post(`/payments/${id}/order`));
+export const verifyPayment = async (id, payload) => data(await api.post(`/payments/${id}/verify`, payload));
+export const getNotifications = async () => data(await api.get('/notifications'));
+export const getRooms = async () => data(await api.get('/rooms'));
+export const createRoom = async (payload) => data(await api.post('/rooms', payload));
+export const getSummary = async () => data(await api.get('/pg/summary'));
+export const getResidentsForAssignment = async () => data(await api.get('/residents'));
+export const assignBed = async (bedId, residentId) => data(await api.post(`/rooms/beds/${bedId}/assign`, { residentId }));
+export const vacateBed = async (bedId) => data(await api.post(`/rooms/beds/${bedId}/vacate`));
+export const updateBedStatus = async (bedId, payload) => data(await api.patch(`/rooms/beds/${bedId}/status`, payload));
+export const runRent = async () => data(await api.post('/payments/rent-run'));
+export const applyLateFees = async () => data(await api.post('/payments/apply-late-fees'));
+export const recordManualPayment = async (payload) => data(await api.post('/payments/manual', payload));
+export const updateLateFeeConfig = async (payload) => data(await api.put('/pg/late-fee-config', payload));
+export const getMyPG = async () => data(await api.get('/pg/mine'));
+export const getReceipts = async () => data(await api.get('/receipts'));
+export const getNotices = async () => data(await api.get('/notices'));
+export const createNotice = async (payload) => data(await api.post('/notices', payload));
+export const deleteNotice = async (id) => data(await api.delete(`/notices/${id}`));
