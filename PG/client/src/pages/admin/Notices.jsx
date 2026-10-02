@@ -1,15 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-
-const MOCK_NOTICES = [
-  { _id: '1', title: 'Water Supply Maintenance', body: 'Water supply will be unavailable on Sunday, 10 AM to 2 PM due to maintenance work. Please store sufficient water beforehand.', createdAt: '2026-10-01', isActive: true, createdBy: 'Admin' },
-  { _id: '2', title: 'Monthly Rent Reminder', body: 'Kindly pay your monthly rent before the 5th of every month to avoid late fees. Contact admin for any payment-related queries.', createdAt: '2026-09-30', isActive: true, createdBy: 'Admin' },
-];
+import { getNotices, createNotice, deleteNotice } from '../../services/management';
+import { useAuth } from '../../context/AuthContext';
 
 const Notices = () => {
+  const { user } = useAuth();
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   const [addOpen, setAddOpen] = useState(false);
-  const [form, setForm] = useState({ title: '', body: '' });
+  const [form, setForm] = useState({ title: '', body: '', audience: { type: 'ALL' }, isUrgent: false, isPinned: false });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchNotices = async () => {
+    try {
+      setLoading(true);
+      const data = await getNotices();
+      setNotices(data);
+    } catch (err) {
+      console.error('Error fetching notices:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotices();
+  }, []);
+
+  const handlePublish = async () => {
+    if (!form.title.trim() || !form.body.trim()) {
+      setError('Title and Message are required.');
+      return;
+    }
+    
+    setSubmitting(true);
+    setError('');
+    
+    try {
+      await createNotice(form);
+      setAddOpen(false);
+      setForm({ title: '', body: '', audience: { type: 'ALL' }, isUrgent: false, isPinned: false });
+      fetchNotices();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to publish notice.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this notice?')) return;
+    
+    try {
+      await deleteNotice(id);
+      fetchNotices();
+    } catch (err) {
+      console.error('Failed to delete notice:', err);
+      alert('Failed to delete notice.');
+    }
+  };
 
   return (
     <div className="flex flex-col w-full space-y-space-lg">
@@ -24,36 +76,41 @@ const Notices = () => {
       </div>
 
       <div className="grid gap-space-md">
-        {MOCK_NOTICES.map((n) => (
-          <div key={n._id} className="section-card hover:shadow-card-hover transition-shadow">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex gap-4 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary shrink-0">
-                  <Icon name="campaign" size={22} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-headline font-semibold text-headline-md text-on-surface">{n.title}</h3>
-                    {n.isActive && (
-                      <span className="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-semibold">Active</span>
-                    )}
+        {loading ? (
+          <div className="flex justify-center p-8"><span className="animate-pulse text-on-surface-variant">Loading notices...</span></div>
+        ) : notices.length > 0 ? (
+          notices.map((n) => (
+            <div key={n._id} className="section-card hover:shadow-card-hover transition-shadow">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex gap-4 flex-1 min-w-0">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.isUrgent ? 'bg-error-container text-on-error-container' : 'bg-primary-fixed text-primary'}`}>
+                    <Icon name={n.isUrgent ? 'priority_high' : 'campaign'} size={22} />
                   </div>
-                  <p className="text-body-md text-on-surface-variant">{n.body}</p>
-                  <div className="flex items-center gap-3 mt-2 text-label-sm text-outline">
-                    <span className="flex items-center gap-1"><Icon name="person" size={12} />{n.createdBy}</span>
-                    <span className="flex items-center gap-1"><Icon name="schedule" size={12} />{new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-headline font-semibold text-headline-md text-on-surface">{n.title}</h3>
+                      {n.isActive && (
+                        <span className="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-semibold">Active</span>
+                      )}
+                      {n.isPinned && (
+                        <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-semibold flex items-center gap-1"><Icon name="push_pin" size={12}/>Pinned</span>
+                      )}
+                    </div>
+                    <p className="text-body-md text-on-surface-variant">{n.body}</p>
+                    <div className="flex items-center gap-3 mt-2 text-label-sm text-outline">
+                      <span className="flex items-center gap-1"><Icon name="person" size={12} />Admin</span>
+                      <span className="flex items-center gap-1"><Icon name="schedule" size={12} />{new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      <span className="flex items-center gap-1"><Icon name="visibility" size={12} />Visible to: {n.audience?.type === 'ALL' ? 'Everyone' : n.audience?.type}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-1 shrink-0">
-                <button className="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors"><Icon name="edit" size={16} /></button>
-                <button className="p-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors"><Icon name="delete" size={16} /></button>
+                <div className="flex gap-1 shrink-0">
+                  <button onClick={() => handleDelete(n._id)} className="p-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors"><Icon name="delete" size={16} /></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-
-        {!MOCK_NOTICES.length && (
+          ))
+        ) : (
           <div className="section-card flex flex-col items-center justify-center py-16 text-on-surface-variant">
             <Icon name="campaign" size={48} className="opacity-30 mb-3" />
             <p className="text-body-md">No notices yet. Post one to notify residents.</p>
@@ -61,23 +118,47 @@ const Notices = () => {
         )}
       </div>
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Post New Notice" size="md"
+      <Modal open={addOpen} onClose={() => { setAddOpen(false); setError(''); }} title="Post New Notice" size="md"
         footer={
           <>
-            <button className="btn-secondary" onClick={() => setAddOpen(false)}>Cancel</button>
-            <button className="btn-primary"><Icon name="send" size={16} />Publish</button>
+            <button className="btn-secondary" onClick={() => { setAddOpen(false); setError(''); }}>Cancel</button>
+            <button className="btn-primary" onClick={handlePublish} disabled={submitting}>
+              <Icon name="send" size={16} />{submitting ? 'Publishing...' : 'Publish'}
+            </button>
           </>
         }>
         <div className="space-y-4">
+          {error && <div className="p-3 bg-error-container text-on-error-container rounded-lg text-body-sm">{error}</div>}
           <div>
             <label className="label">Notice Title</label>
-            <input className="input" placeholder="e.g. Water Supply Maintenance" value={form.title}
+            <input className="input w-full" placeholder="e.g. Water Supply Maintenance" value={form.title}
               onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
           </div>
           <div>
             <label className="label">Message</label>
-            <textarea className="input" rows={5} placeholder="Write your announcement here..."
+            <textarea className="input w-full" rows={5} placeholder="Write your announcement here..."
               value={form.body} onChange={(e) => setForm((p) => ({ ...p, body: e.target.value }))} />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+             <div>
+                <label className="label">Audience</label>
+                <select className="input w-full" value={form.audience.type} onChange={(e) => setForm((p) => ({ ...p, audience: { type: e.target.value } }))}>
+                  <option value="ALL">Everyone</option>
+                  <option value="RESIDENTS">Residents Only</option>
+                  <option value="STAFF">Staff Only</option>
+                </select>
+             </div>
+             <div className="flex flex-col gap-2 pt-6">
+                <label className="flex items-center gap-2 text-label-md cursor-pointer text-on-surface">
+                  <input type="checkbox" checked={form.isUrgent} onChange={(e) => setForm(p => ({ ...p, isUrgent: e.target.checked }))} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />
+                  Mark as Urgent
+                </label>
+                <label className="flex items-center gap-2 text-label-md cursor-pointer text-on-surface">
+                  <input type="checkbox" checked={form.isPinned} onChange={(e) => setForm(p => ({ ...p, isPinned: e.target.checked }))} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />
+                  Pin to Top
+                </label>
+             </div>
           </div>
         </div>
       </Modal>

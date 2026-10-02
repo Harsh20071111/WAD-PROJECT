@@ -16,6 +16,9 @@ const ITEMS = {
     ['Requests', 'build', '/resident/complaints'],
     ['Notices', 'campaign', '/resident/notices'],
   ],
+  STAFF: [
+    ['My Tasks', 'assignment', '/staff/tasks'],
+  ],
 };
 
 const MobileNav = ({ role = 'ADMIN' }) => (

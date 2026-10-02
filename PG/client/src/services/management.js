@@ -27,3 +27,6 @@ export const recordManualPayment = async (payload) => data(await api.post('/paym
 export const updateLateFeeConfig = async (payload) => data(await api.put('/pg/late-fee-config', payload));
 export const getMyPG = async () => data(await api.get('/pg/mine'));
 export const getReceipts = async () => data(await api.get('/receipts'));
+export const getNotices = async () => data(await api.get('/notices'));
+export const createNotice = async (payload) => data(await api.post('/notices', payload));
+export const deleteNotice = async (id) => data(await api.delete(`/notices/${id}`));
