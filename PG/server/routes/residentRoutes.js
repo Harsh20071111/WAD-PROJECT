@@ -48,4 +48,30 @@ router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
   } finally { await session.endSession(); }
 });
 
+router.post('/bulk', restrictTo('ADMIN'), async (req, res, next) => {
+  try {
+    const residentsData = req.body.residents;
+    if (!Array.isArray(residentsData)) throw Object.assign(new Error('Invalid format'), { statusCode: 400 });
+
+    const results = { successful: 0, failed: 0, errors: [] };
+    for (const item of residentsData) {
+      const session = await User.startSession();
+      try {
+        session.startTransaction();
+        const [user] = await User.create([{ name: item.name, email: item.email.toLowerCase().trim(), phone: item.phone, passwordHash: await bcrypt.hash(item.password || item.phone, 10), role: 'RESIDENT' }], { session });
+        await Resident.create([{ userId: user._id, pgId: req.user.pgId, gender: item.gender || 'OTHER', monthlyRent: item.monthlyRent || 0, securityDeposit: item.securityDeposit || 0, status: 'ACTIVE' }], { session });
+        await session.commitTransaction();
+        results.successful++;
+      } catch (err) {
+        await session.abortTransaction();
+        results.failed++;
+        results.errors.push(`Row ${item.name}: ${err.message}`);
+      } finally {
+        await session.endSession();
+      }
+    }
+    res.status(201).json({ success: true, data: results });
+  } catch (error) { next(error); }
+});
+
 module.exports = router;

@@ -8,6 +8,7 @@ export const updateComplaint = async (id, payload) => data(await api.patch(`/com
 export const getStaff = async () => data(await api.get('/staff'));
 export const getResidents = async () => data(await api.get('/residents'));
 export const createResident = async (payload) => data(await api.post('/residents', payload));
+export const bulkImportResidents = async (payload) => data(await api.post('/residents/bulk', payload));
 export const getPayments = async () => data(await api.get('/payments'));
 export const createPayment = async (payload) => data(await api.post('/payments', payload));
 export const getMyPayments = async () => data(await api.get('/payments/mine'));
