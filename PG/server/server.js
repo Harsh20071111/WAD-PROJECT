@@ -42,6 +42,10 @@ app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/staff', require('./routes/staffRoutes'));
+app.use('/api/notices', require('./routes/noticeRoutes'));
+app.use('/api/enquiries', require('./routes/enquiryRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/receipts', require('./routes/receiptRoutes'));
 
 // Phase 4+:  app.use('/api/rooms',      require('./routes/roomRoutes'));
 // Phase 4+:  app.use('/api/public',     require('./routes/publicRoutes'));
@@ -66,7 +70,7 @@ app.use((req, res) => {
 // ─── Global error handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.message);
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+  const statusCode = err.statusCode || err.status || (res.statusCode !== 200 ? res.statusCode : 500);
   res.status(statusCode).json({
     success: false,
     message: err.message || 'Internal Server Error',

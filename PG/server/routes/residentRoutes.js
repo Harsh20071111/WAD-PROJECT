@@ -12,7 +12,7 @@ router.use(protect);
 
 router.get('/me', async (req, res, next) => {
   try {
-    const resident = await Resident.findOne({ userId: req.user._id }).populate('roomId').populate('bedId');
+    const resident = await Resident.findOne({ userId: req.user._id, pgId: req.user.pgId }).populate('roomId').populate('bedId');
     res.json({ success: true, data: resident });
   } catch (error) { next(error); }
 });

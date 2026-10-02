@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { name, email, phone, password, categories = [] } = req.body;
-    const [user] = await User.create([{ name, email: email.toLowerCase().trim(), phone, passwordHash: await bcrypt.hash(password, 10), role: 'STAFF' }]);
+    const [user] = await User.create([{ name, email: email.toLowerCase().trim(), phone, passwordHash: await bcrypt.hash(password, 10), role: 'STAFF', pgId: req.user.pgId }]);
     const staff = await Staff.create({ userId: user._id, pgId: req.user.pgId, categories });
     res.status(201).json({ success: true, data: await staff.populate('userId', 'name email phone role isActive') });
   } catch (error) { next(error); }

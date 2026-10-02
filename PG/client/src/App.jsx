@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout    from './layouts/PublicLayout';
 import AdminLayout     from './layouts/AdminLayout';
 import ResidentLayout  from './layouts/ResidentLayout';
+import StaffLayout     from './layouts/StaffLayout';
 
 // Public pages
 import Home    from './pages/public/Home';
@@ -34,6 +35,7 @@ import MyRoom             from './pages/resident/MyRoom';
 import ResidentPayments   from './pages/resident/ResidentPayments';
 import ResidentComplaints from './pages/resident/ResidentComplaints';
 import ResidentNotices    from './pages/resident/ResidentNotices';
+import StaffTasks          from './pages/staff/Tasks';
 
 function App() {
   return (
@@ -45,6 +47,12 @@ function App() {
             <Route path="/"        element={<Home />} />
             <Route path="/rooms"   element={<Rooms />} />
             <Route path="/contact" element={<Contact />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
+            <Route element={<StaffLayout />}>
+              <Route path="/staff/tasks" element={<StaffTasks />} />
+            </Route>
           </Route>
 
           {/* Auth */}

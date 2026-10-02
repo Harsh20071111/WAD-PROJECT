@@ -64,7 +64,10 @@ const complaintSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Staff',
       default: null
-    }
+    },
+    slaDueAt: { type: Date, default: null },
+    resolvedAt: { type: Date, default: null },
+    requiresFeedback: { type: Boolean, default: false }
   },
   {
     timestamps: true
