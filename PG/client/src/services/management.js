@@ -19,3 +19,4 @@ export const applyLateFees = async () => data(await api.post('/payments/apply-la
 export const recordManualPayment = async (payload) => data(await api.post('/payments/manual', payload));
 export const updateLateFeeConfig = async (payload) => data(await api.put('/pg/late-fee-config', payload));
 export const getMyPG = async () => data(await api.get('/pg/mine'));
+export const getReceipts = async () => data(await api.get('/payments/receipts'));

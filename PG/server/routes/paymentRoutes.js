@@ -76,6 +76,16 @@ router.post('/:id/verify', restrictTo('RESIDENT'), async (req, res, next) => {
     res.json({ success: true, data: { payment, receipt } });
   } catch (error) { next(error); }
 });
+router.get('/receipts', restrictTo('ADMIN', 'STAFF'), async (req, res, next) => {
+  try {
+    const payments = await Payment.find({ pgId: req.user.pgId }).select('_id');
+    const paymentIds = payments.map(p => p._id);
+    const receipts = await PaymentReceipt.find({ paymentId: { $in: paymentIds } })
+      .populate('paymentId', 'method status')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: receipts });
+  } catch (error) { next(error); }
+});
 
 router.post('/rent-run', restrictTo('ADMIN'), async (req, res, next) => {
   try {
