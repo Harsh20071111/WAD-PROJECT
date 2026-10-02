@@ -20,8 +20,7 @@ const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost:\d+$/.test(origin)) || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     callback(new Error(`CORS: origin ${origin} not allowed`));
@@ -36,6 +35,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/pg', require('./routes/pgRoutes'));
+app.use('/api/rooms', require('./routes/roomRoutes'));
+app.use('/api/residents', require('./routes/residentRoutes'));
+app.use('/api/complaints', require('./routes/complaintRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/staff', require('./routes/staffRoutes'));
 
 // Phase 4+:  app.use('/api/rooms',      require('./routes/roomRoutes'));
 // Phase 4+:  app.use('/api/public',     require('./routes/publicRoutes'));
