@@ -136,7 +136,13 @@ const Rooms = () => {
               )}
               <div className="mt-5 flex gap-2 border-t border-slate-200 pt-4">
                 <Button variant="secondary" className="flex-1 min-h-10">View Details</Button>
-                <Link className="flex-1" to="/contact"><Button className="w-full min-h-10">Enquire</Button></Link>
+                <Link
+                  className="flex-1"
+                  to={`/contact?room=${room.roomNumber}&type=${encodeURIComponent(room.type)}&rent=${room.rent}&avail=${room.availableBeds}`}
+                  state={{ roomNumber: room.roomNumber, type: room.type, rent: room.rent, availableBeds: room.availableBeds }}
+                >
+                  <Button className="w-full min-h-10">Enquire</Button>
+                </Link>
               </div>
             </div>
           </Card>

@@ -2,8 +2,39 @@ const express = require('express');
 const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
 const Enquiry = require('../models/Enquiry');
+const PG = require('../models/PG');
 
 const router = express.Router();
+
+// Public route: submit an enquiry from the website (no auth required)
+router.post('/public', async (req, res, next) => {
+  try {
+    let pgId = req.body.pgId;
+    if (!pgId) {
+      const defaultPg = await PG.findOne();
+      pgId = defaultPg ? defaultPg._id : null;
+    }
+    if (!pgId) {
+      return res.status(400).json({ success: false, message: 'PG identifier not found' });
+    }
+
+    const enquiry = await Enquiry.create({
+      pgId,
+      name: req.body.name,
+      phone: req.body.phone,
+      email: req.body.email || '',
+      moveInDate: req.body.moveInDate || null,
+      message: req.body.message || '',
+      source: 'WEBSITE',
+      status: 'NEW',
+    });
+
+    res.status(201).json({ success: true, data: enquiry });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.use(protect, restrictTo('ADMIN'));
 
 router.get('/', async (req, res, next) => {

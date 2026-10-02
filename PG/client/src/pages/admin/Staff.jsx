@@ -1,17 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
-
-const MOCK_STAFF = [
-  { _id: '1', name: 'Ravi Kumar', email: 'ravi@sunrise.pg', phone: '+91 9100000001', categories: ['Electrical', 'Plumbing', 'AC'], isActive: true, assigned: 3, resolved: 12 },
-  { _id: '2', name: 'Suresh Nair', email: 'suresh@sunrise.pg', phone: '+91 9100000002', categories: ['Cleaning', 'Furniture', 'Wi-Fi'], isActive: true, assigned: 1, resolved: 8 },
-];
+import api from '../../services/api';
 
 const Staff = () => {
   const [addOpen, setAddOpen]   = useState(false);
   const [selected, setSelected] = useState(null);
+  
+  const [staffList, setStaffList] = useState([]);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', categories: [] });
+
+  const fetchStaff = async () => {
+    try {
+      const { data } = await api.get('/staff');
+      const mapped = (data.data || []).map(staff => ({
+        _id: staff._id,
+        name: staff.userId?.name || '',
+        email: staff.userId?.email || '',
+        phone: staff.userId?.phone || '',
+        isActive: staff.userId?.isActive ?? true,
+        categories: staff.categories || [],
+        assigned: staff.assignedTickets || 0,
+        resolved: staff.resolvedTickets || 0
+      }));
+      setStaffList(mapped);
+    } catch (err) {
+      console.error("Failed to load staff", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const handleAddStaff = async () => {
+    if (!formData.name || !formData.email || !formData.password || formData.categories.length === 0) {
+      alert("Please fill all required fields and select at least one category");
+      return;
+    }
+    try {
+      const { data } = await api.post('/staff', formData);
+      const newStaff = {
+        _id: data.data._id,
+        name: data.data.userId?.name || formData.name,
+        email: data.data.userId?.email || formData.email,
+        phone: data.data.userId?.phone || formData.phone,
+        isActive: data.data.userId?.isActive ?? true,
+        categories: data.data.categories || formData.categories,
+        assigned: 0,
+        resolved: 0
+      };
+      setStaffList([newStaff, ...staffList]);
+      setAddOpen(false);
+      setFormData({ name: '', email: '', phone: '', password: '', categories: [] });
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || err.message);
+    }
+  };
+
+  const toggleCategory = (c) => {
+    setFormData(prev => ({
+      ...prev,
+      categories: prev.categories.includes(c) 
+        ? prev.categories.filter(x => x !== c) 
+        : [...prev.categories, c]
+    }));
+  };
 
   const columns = [
     {
@@ -19,7 +76,7 @@ const Staff = () => {
       render: (v, row) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary text-label-md font-bold">
-            {v.charAt(0)}
+            {v?.charAt(0)?.toUpperCase()}
           </div>
           <div>
             <p className="font-semibold text-on-surface text-body-sm">{v}</p>
@@ -68,10 +125,10 @@ const Staff = () => {
       {/* Workload Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-space-md">
         {[
-          { title: 'Total Staff', value: MOCK_STAFF.length, icon: 'engineering', bg: 'bg-surface-container', color: 'text-primary' },
-          { title: 'Active', value: MOCK_STAFF.filter((s) => s.isActive).length, icon: 'how_to_reg', bg: 'bg-primary-fixed', color: 'text-on-primary-fixed-variant' },
-          { title: 'Open Tickets', value: MOCK_STAFF.reduce((s, m) => s + m.assigned, 0), icon: 'assignment', bg: 'bg-secondary-fixed', color: 'text-on-secondary-fixed' },
-          { title: 'Resolved (All)', value: MOCK_STAFF.reduce((s, m) => s + m.resolved, 0), icon: 'task_alt', bg: 'bg-surface-container', color: 'text-primary' },
+          { title: 'Total Staff', value: staffList.length, icon: 'engineering', bg: 'bg-surface-container', color: 'text-primary' },
+          { title: 'Active', value: staffList.filter((s) => s.isActive).length, icon: 'how_to_reg', bg: 'bg-primary-fixed', color: 'text-on-primary-fixed-variant' },
+          { title: 'Open Tickets', value: staffList.reduce((s, m) => s + m.assigned, 0), icon: 'assignment', bg: 'bg-secondary-fixed', color: 'text-on-secondary-fixed' },
+          { title: 'Resolved (All)', value: staffList.reduce((s, m) => s + m.resolved, 0), icon: 'task_alt', bg: 'bg-surface-container', color: 'text-primary' },
         ].map((s) => (
           <div key={s.title} className="stat-card">
             <div className="flex items-center justify-between mb-2">
@@ -84,25 +141,38 @@ const Staff = () => {
       </div>
 
       <div className="section-card">
-        <DataTable columns={columns} data={MOCK_STAFF} emptyMessage="No staff found" emptyIcon="engineering" />
+        <DataTable columns={columns} data={staffList} emptyMessage="No staff found" emptyIcon="engineering" />
       </div>
 
       {/* Add Staff Modal */}
       <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Add New Staff" size="md"
-        footer={<><button className="btn-secondary" onClick={() => setAddOpen(false)}>Cancel</button><button className="btn-primary"><Icon name="save" size={16} />Save</button></>}>
+        footer={<><button className="btn-secondary" onClick={() => setAddOpen(false)}>Cancel</button><button className="btn-primary" onClick={handleAddStaff}><Icon name="save" size={16} />Save</button></>}>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="label">Full Name</label><input className="input" placeholder="Ravi Kumar" /></div>
-            <div><label className="label">Email</label><input className="input" type="email" placeholder="ravi@sunrise.pg" /></div>
-            <div><label className="label">Phone</label><input className="input" placeholder="+91 9XXXXXXXXX" /></div>
-            <div><label className="label">Password</label><input className="input" type="password" /></div>
+            <div>
+              <label className="label">Full Name</label>
+              <input className="input" placeholder="Ravi Kumar" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div>
+              <label className="label">Email</label>
+              <input className="input" type="email" placeholder="ravi@sunrise.pg" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+            </div>
+            <div>
+              <label className="label">Phone</label>
+              <input className="input" placeholder="+91 9XXXXXXXXX" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+            </div>
+            <div>
+              <label className="label">Password</label>
+              <input className="input" type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+            </div>
           </div>
           <div>
             <label className="label">Specialization Categories</label>
             <div className="flex flex-wrap gap-2 mt-1">
               {['Electrical', 'Plumbing', 'Cleaning', 'Furniture', 'Wi-Fi', 'AC', 'Water', 'Security'].map((c) => (
                 <label key={c} className="flex items-center gap-1.5 cursor-pointer text-body-sm">
-                  <input type="checkbox" className="accent-primary" />{c}
+                  <input type="checkbox" className="accent-primary" checked={formData.categories.includes(c)} onChange={() => toggleCategory(c)} />
+                  {c}
                 </label>
               ))}
             </div>
