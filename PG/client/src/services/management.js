@@ -15,6 +15,7 @@ export const createPaymentOrder = async (id) => data(await api.post(`/payments/$
 export const verifyPayment = async (id, payload) => data(await api.post(`/payments/${id}/verify`, payload));
 export const getNotifications = async () => data(await api.get('/notifications'));
 export const getRooms = async () => data(await api.get('/rooms'));
+export const createRoom = async (payload) => data(await api.post('/rooms', payload));
 export const getSummary = async () => data(await api.get('/pg/summary'));
 export const getResidentsForAssignment = async () => data(await api.get('/residents'));
 export const assignBed = async (bedId, residentId) => data(await api.post(`/rooms/beds/${bedId}/assign`, { residentId }));
