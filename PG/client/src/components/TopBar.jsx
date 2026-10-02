@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../context/AuthContext';
 
 const TopBar = ({ title, breadcrumb }) => {
   const { user } = useAuth();
-  const [search, setSearch] = useState('');
 
   return (
     <header className="fixed top-0 left-0 md:left-60 right-0 h-16 bg-surface-container-lowest/95 border-b border-outline-variant z-40 px-space-lg flex items-center justify-between gap-space-md">
-      {/* Left: breadcrumb + search */}
+      {/* Left: breadcrumb */}
       <div className="flex items-center gap-space-md flex-1 max-w-2xl">
         {breadcrumb && (
           <div className="flex items-center gap-1.5 text-label-md text-on-surface-variant shrink-0">
@@ -24,18 +22,6 @@ const TopBar = ({ title, breadcrumb }) => {
             ))}
           </div>
         )}
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
-            <Icon name="search" size={18} />
-          </div>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search bed no, resident phone, Aadhaar, room token..."
-            className="w-full pl-9 pr-3 py-1.5 bg-background border border-outline-variant rounded-lg text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-          />
-        </div>
       </div>
 
       {/* Right: notifications + user */}
