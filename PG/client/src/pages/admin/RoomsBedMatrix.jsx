@@ -7,6 +7,15 @@ import { assignBed, getResidentsForAssignment, getRooms, getSummary, vacateBed }
 
 const typeLabels = { SINGLE: '1-Sharing', DOUBLE: '2-Sharing', TRIPLE: '3-Sharing', QUAD: '4-Sharing' };
 
+const defaultRoomData = {
+  roomNumber: '',
+  floor: '1',
+  type: 'DOUBLE',
+  capacity: 2,
+  rent: '',
+  amenities: ['Wi-Fi', 'Attached Bathroom']
+};
+
 const RoomsBedMatrix = () => {
   const [rooms, setRooms] = useState([]); const [summary, setSummary] = useState(null); const [residents, setResidents] = useState([]);
   const [activeFloor, setActiveFloor] = useState('all'); const [selectedRoom, setSelectedRoom] = useState(null); const [assigningBed, setAssigningBed] = useState(null);
