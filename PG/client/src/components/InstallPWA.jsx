@@ -54,8 +54,17 @@ export default function InstallPWA() {
       setDeferredPrompt(null);
     });
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+    // Custom event to trigger manually
+    const handleManualTrigger = () => {
+      if (!isInstalled) setShowBanner(true);
+    };
+    window.addEventListener('show-pwa-install', handleManualTrigger);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('show-pwa-install', handleManualTrigger);
+    };
+  }, [isInstalled]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) {

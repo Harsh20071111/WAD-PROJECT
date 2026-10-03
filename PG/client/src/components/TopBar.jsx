@@ -5,11 +5,17 @@ import { useAuth } from '../context/AuthContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const TopBar = ({ title, breadcrumb }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { status, enable } = usePushNotifications();
   const isResident = user?.role === 'RESIDENT';
+
+  const triggerInstall = () => {
+    window.dispatchEvent(new Event('show-pwa-install'));
+    setShowProfileMenu(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 md:left-60 right-0 h-16 bg-surface-container-lowest/95 border-b border-outline-variant z-40 px-space-lg flex items-center justify-between gap-space-md">
@@ -79,15 +85,48 @@ const TopBar = ({ title, breadcrumb }) => {
           <Icon name="notifications" size={20} />
         </button>
 
-        {/* User */}
-        <div className="flex items-center gap-space-sm pl-1">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-label-md font-bold">
-            <Icon name="person" size={18} />
-          </div>
-          <div className="hidden xl:flex flex-col text-left">
-            <span className="text-label-md text-on-surface leading-tight font-medium">{user?.name || (isResident ? 'Priya Sharma' : 'PG Owner')}</span>
-            <span className="text-label-sm text-on-surface-variant leading-none">{isResident ? 'Resident' : (user?.role || 'Admin')}</span>
-          </div>
+        {/* User Dropdown */}
+        <div className="relative">
+          <button 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-space-sm pl-1 hover:bg-surface-container-low rounded-lg p-1 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-label-md font-bold">
+              <Icon name="person" size={18} />
+            </div>
+            <div className="hidden xl:flex flex-col text-left mr-1">
+              <span className="text-label-md text-on-surface leading-tight font-medium">{user?.name || (isResident ? 'Priya Sharma' : 'PG Owner')}</span>
+              <span className="text-label-sm text-on-surface-variant leading-none">{isResident ? 'Resident' : (user?.role || 'Admin')}</span>
+            </div>
+            <Icon name="expand_more" size={18} className="text-outline hidden xl:block" />
+          </button>
+
+          {showProfileMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
+              <div className="absolute right-0 mt-2 w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg overflow-hidden z-50 animate-fade-in py-1">
+                <button 
+                  onClick={triggerInstall}
+                  className="w-full text-left px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2 transition-colors"
+                >
+                  <Icon name="get_app" size={18} className="text-primary" />
+                  Install App
+                </button>
+                <div className="h-px bg-outline-variant my-1" />
+                <button 
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    logout();
+                    navigate('/login');
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-body-sm text-error hover:bg-error-container hover:text-on-error-container flex items-center gap-2 transition-colors"
+                >
+                  <Icon name="logout" size={18} />
+                  Sign Out
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>
