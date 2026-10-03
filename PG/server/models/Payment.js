@@ -78,6 +78,10 @@ const paymentSchema = new mongoose.Schema(
     reminderSentAt: {
       type: Date,
       default: null
+    },
+    remindersSent: {
+      type: [String],
+      default: []
     }
   },
   {

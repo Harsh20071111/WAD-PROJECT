@@ -37,7 +37,7 @@ const checkSlaBreaches = async () => {
       });
       await complaint.save();
 
-      await notifyAllAdmins({
+      await notifyAllAdmins(complaint.pgId, {
         type: 'SLA_BREACH',
         title: `🚨 SLA Breached: ${complaint.requestNo}`,
         message: `Complaint #${complaint.requestNo} (${complaint.category}: ${complaint.title}) has passed its SLA target of ${complaint.slaHours}h!`,

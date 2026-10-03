@@ -9,9 +9,19 @@ const Resident = require('../models/Resident');
 const PG = require('../models/PG');
 const Counter = require('../models/Counter');
 const notify = require('../utils/notify');
+const { runRentReminders } = require('../jobs/rentReminderJob');
 
 const router = express.Router();
 router.use(protect);
+
+router.post('/run-reminders', restrictTo('ADMIN'), async (req, res, next) => {
+  try {
+    await runRentReminders();
+    res.status(200).json({ success: true, message: 'Rent reminders triggered successfully' });
+  } catch (err) {
+    next(err);
+  }
+});
 
 const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
   ? new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })

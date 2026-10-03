@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const pushService = require('../services/pushService');
 
 /**
  * Send a notification to a specific user
@@ -13,6 +14,15 @@ const notify = async ({ userId, type, title, message, link = '' }) => {
       message,
       link
     });
+
+    // Fire-and-forget push
+    pushService.sendToUser(userId, {
+      title,
+      body: message,
+      link,
+      type: type || 'SYSTEM'
+    }).catch(() => {});
+
     return notification;
   } catch (err) {
     console.error('Error creating notification:', err.message);
@@ -20,11 +30,11 @@ const notify = async ({ userId, type, title, message, link = '' }) => {
 };
 
 /**
- * Send notification to all admin users
+ * Send notification to all admin users of a PG
  */
-const notifyAllAdmins = async ({ type = 'SLA_BREACH', title, message, link = '' }) => {
+const notifyAllAdmins = async (pgId, { type = 'SLA_BREACH', title, message, link = '' }) => {
   try {
-    const admins = await User.find({ role: 'ADMIN', isActive: true }).select('_id');
+    const admins = await User.find({ pgId, role: 'ADMIN', isActive: true }).select('_id');
     const docs = admins.map(admin => ({
       userId: admin._id,
       type,
@@ -34,6 +44,16 @@ const notifyAllAdmins = async ({ type = 'SLA_BREACH', title, message, link = '' 
     }));
     if (docs.length > 0) {
       await Notification.insertMany(docs);
+
+      // Fire-and-forget push for each admin
+      docs.forEach(doc => {
+        pushService.sendToUser(doc.userId, {
+          title: doc.title,
+          body: doc.message,
+          link: doc.link,
+          type: doc.type
+        }).catch(() => {});
+      });
     }
   } catch (err) {
     console.error('Error notifying admins:', err.message);

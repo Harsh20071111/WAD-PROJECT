@@ -75,11 +75,17 @@ const createComplaint = asyncHandler(async (req, res) => {
     ]
   });
 
-  await notifyAllAdmins({
+  let roomNumber = 'N/A';
+  if (resident.roomId) {
+    const room = await Room.findById(resident.roomId);
+    if (room) roomNumber = room.roomNumber;
+  }
+
+  await notifyAllAdmins(resident.pgId, {
     type: 'NEW_COMPLAINT',
-    title: `New Request: ${requestNo}`,
-    message: `${req.user.name} raised a ${category} complaint: "${title}"`,
-    link: `/admin/complaints`
+    title: `New service request #${requestNo}`,
+    message: `${category}: ${title} (Room ${roomNumber})`,
+    link: `/admin/service-requests`
   });
 
   res.status(201).json({

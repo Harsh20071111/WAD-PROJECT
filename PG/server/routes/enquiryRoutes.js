@@ -5,6 +5,7 @@ const Enquiry = require('../models/Enquiry');
 const PG = require('../models/PG');
 const rateLimit = require('express-rate-limit');
 const https = require('https');
+const notify = require('../utils/notify');
 
 const router = express.Router();
 
@@ -74,6 +75,14 @@ router.post('/public', enquiryLimiter, async (req, res, next) => {
       status: 'NEW',
     });
 
+    // Notify admins
+    notify.notifyAdmins(pgId, {
+      type: 'ENQUIRY',
+      title: 'New enquiry',
+      message: `${req.body.name} asked about a room`,
+      link: '/admin/enquiries'
+    });
+
     res.status(201).json({ success: true, data: enquiry });
   } catch (error) {
     next(error);
@@ -87,7 +96,16 @@ router.get('/', async (req, res, next) => {
   catch (error) { next(error); }
 });
 router.post('/', async (req, res, next) => {
-  try { res.status(201).json({ success: true, data: await Enquiry.create({ ...req.body, pgId: req.user.pgId }) }); }
+  try { 
+    const enquiry = await Enquiry.create({ ...req.body, pgId: req.user.pgId });
+    notify.notifyAdmins(req.user.pgId, {
+      type: 'ENQUIRY',
+      title: 'New enquiry',
+      message: `${req.body.name} asked about a room`,
+      link: '/admin/enquiries'
+    });
+    res.status(201).json({ success: true, data: enquiry }); 
+  }
   catch (error) { next(error); }
 });
 router.get('/:id', async (req, res, next) => {

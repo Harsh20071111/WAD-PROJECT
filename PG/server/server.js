@@ -49,9 +49,13 @@ app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/enquiries', require('./routes/enquiryRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/receipts', require('./routes/receiptRoutes'));
+app.use('/api/devices', require('./routes/deviceRoutes'));
 
 // SLA Breach Cron Job (checks every 5 mins)
 require('./utils/slaCron').initSlaCron();
+
+// Rent Reminder Cron Job (runs daily at 9:00 AM IST)
+require('./jobs/rentReminderJob').initRentReminderCron();
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

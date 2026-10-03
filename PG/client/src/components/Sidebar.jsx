@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../context/AuthContext';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const NAV_ADMIN = [
   { section: 'Overview', items: [
@@ -48,10 +49,12 @@ const NAV_STAFF = [
 const Sidebar = ({ role = 'ADMIN' }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { disable } = usePushNotifications();
 
   const navGroups = role === 'ADMIN' ? NAV_ADMIN : role === 'RESIDENT' ? NAV_RESIDENT : NAV_STAFF;
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await disable();
     logout();
     navigate('/login');
   };

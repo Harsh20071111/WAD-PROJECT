@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../context/AuthContext';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const TopBar = ({ title, breadcrumb }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const { status, enable } = usePushNotifications();
   const isResident = user?.role === 'RESIDENT';
 
   return (
@@ -56,6 +58,18 @@ const TopBar = ({ title, breadcrumb }) => {
             </div>
             <div className="h-6 w-px bg-outline-variant" />
           </>
+        )}
+
+        {/* Enable Push Notifications Prompt */}
+        {status === 'default' && (
+          <button
+            onClick={enable}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-label-sm font-medium border border-primary/20"
+            title="Enable Push Notifications"
+          >
+            <Icon name="notifications_active" size={16} />
+            <span>Enable Push</span>
+          </button>
         )}
 
         {/* Notifications */}
