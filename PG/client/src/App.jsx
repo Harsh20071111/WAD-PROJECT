@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import InstallPWA from './components/InstallPWA';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -45,18 +46,13 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <BrowserRouter>
+          <InstallPWA />
           <Routes>
             {/* Public routes */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/contact" element={<Contact />} />
-            </Route>
-
-            <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
-              <Route element={<StaffLayout />}>
-                <Route path="/staff/tasks" element={<StaffTasks />} />
-              </Route>
             </Route>
 
             {/* Auth */}
@@ -77,6 +73,13 @@ function App() {
                 <Route path="/admin/feedback" element={<Feedback />} />
                 <Route path="/admin/enquiries" element={<Enquiries />} />
                 <Route path="/admin/activity" element={<ActivityLog />} />
+              </Route>
+            </Route>
+
+            {/* Staff routes */}
+            <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
+              <Route element={<StaffLayout />}>
+                <Route path="/staff/tasks" element={<StaffTasks />} />
               </Route>
             </Route>
 

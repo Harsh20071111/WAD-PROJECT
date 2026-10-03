@@ -5,11 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="NestOps — PG Management & Resident Service Platform" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NestOps" />
+    <link rel="apple-touch-icon" href="/icon-192.jpg" />
+    <link rel="manifest" href="/manifest.json" />
     <title>NestOps PG Management</title>
   </head>
   <body>
     <div id="root"></div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Register Service Worker for PWA support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('✅ Service Worker registered:', reg.scope))
+            .catch((err) => console.warn('⚠️ SW registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>
