@@ -65,19 +65,19 @@ const Complaints = () => {
   // Subscribe to real-time WebSocket events to update without page reload
   useEffect(() => {
     const unsubscribeCreated = subscribeToEvent('itemCreated', (eventData) => {
-      if (eventData?.data?.type === 'complaint') {
+      if (eventData?.type === 'complaint') {
         fetchComplaints();
       }
     });
 
     const unsubscribeUpdated = subscribeToEvent('itemUpdated', (eventData) => {
-      if (eventData?.data?.type === 'complaint') {
+      if (eventData?.type === 'complaint') {
         fetchComplaints();
       }
     });
 
     const unsubscribeData = subscribeToEvent('dataUpdated', (eventData) => {
-      if (eventData?.data?.type === 'complaint') {
+      if (eventData?.type === 'complaint') {
         fetchComplaints();
       }
     });

@@ -51,16 +51,16 @@ const Enquiries = () => {
   // Real-time WebSocket: instantly show new enquiries from public form
   useEffect(() => {
     const unsubCreated = subscribeToEvent('itemCreated', (e) => {
-      if (e?.data?.type === 'enquiry') fetchEnquiries();
+      if (e?.type === 'enquiry') fetchEnquiries();
     });
     const unsubUpdated = subscribeToEvent('itemUpdated', (e) => {
-      if (e?.data?.type === 'enquiry') fetchEnquiries();
+      if (e?.type === 'enquiry') fetchEnquiries();
     });
     const unsubDeleted = subscribeToEvent('itemDeleted', (e) => {
-      if (e?.data?.type === 'enquiry') fetchEnquiries();
+      if (e?.type === 'enquiry') fetchEnquiries();
     });
     const unsubData = subscribeToEvent('dataUpdated', (e) => {
-      if (e?.data?.type === 'enquiry') fetchEnquiries();
+      if (e?.type === 'enquiry') fetchEnquiries();
     });
 
     return () => {

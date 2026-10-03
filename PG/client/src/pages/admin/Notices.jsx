@@ -35,16 +35,16 @@ const Notices = () => {
 
   useEffect(() => {
     const unsubCreated = subscribeToEvent('itemCreated', (e) => {
-      if (e?.data?.type === 'notice') fetchNotices();
+      if (e?.type === 'notice') fetchNotices();
     });
     const unsubUpdated = subscribeToEvent('itemUpdated', (e) => {
-      if (e?.data?.type === 'notice') fetchNotices();
+      if (e?.type === 'notice') fetchNotices();
     });
     const unsubDeleted = subscribeToEvent('itemDeleted', (e) => {
-      if (e?.data?.type === 'notice') fetchNotices();
+      if (e?.type === 'notice') fetchNotices();
     });
     const unsubData = subscribeToEvent('dataUpdated', (e) => {
-      if (e?.data?.type === 'notice') fetchNotices();
+      if (e?.type === 'notice') fetchNotices();
     });
 
     return () => {
