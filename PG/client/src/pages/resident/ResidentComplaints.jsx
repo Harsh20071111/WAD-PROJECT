@@ -44,17 +44,17 @@ const ResidentComplaints = () => {
   // Subscribe to real-time WebSocket events for instant status sync
   useEffect(() => {
     const unsubUpdated = subscribeToEvent('itemUpdated', (eventData) => {
-      if (eventData?.type === 'complaint') {
+      if (eventData?.data?.type === 'complaint') {
         fetchComplaints();
       }
     });
     const unsubCreated = subscribeToEvent('itemCreated', (eventData) => {
-      if (eventData?.type === 'complaint') {
+      if (eventData?.data?.type === 'complaint') {
         fetchComplaints();
       }
     });
     const unsubData = subscribeToEvent('dataUpdated', (eventData) => {
-      if (eventData?.type === 'complaint') {
+      if (eventData?.data?.type === 'complaint') {
         fetchComplaints();
       }
     });

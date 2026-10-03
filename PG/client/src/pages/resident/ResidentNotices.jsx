@@ -29,16 +29,16 @@ const ResidentNotices = () => {
 
   useEffect(() => {
     const unsubCreated = subscribeToEvent('itemCreated', (e) => {
-      if (e?.type === 'notice') fetchNotices();
+      if (e?.data?.type === 'notice') fetchNotices();
     });
     const unsubUpdated = subscribeToEvent('itemUpdated', (e) => {
-      if (e?.type === 'notice') fetchNotices();
+      if (e?.data?.type === 'notice') fetchNotices();
     });
     const unsubDeleted = subscribeToEvent('itemDeleted', (e) => {
-      if (e?.type === 'notice') fetchNotices();
+      if (e?.data?.type === 'notice') fetchNotices();
     });
     const unsubData = subscribeToEvent('dataUpdated', (e) => {
-      if (e?.type === 'notice') fetchNotices();
+      if (e?.data?.type === 'notice') fetchNotices();
     });
 
     return () => {
