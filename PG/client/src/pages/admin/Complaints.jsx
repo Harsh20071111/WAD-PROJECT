@@ -5,6 +5,7 @@ import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
+import { useSocket } from '../../context/SocketContext';
 
 const TRANSITIONS = {
   NEW: ['ASSIGNED'],
@@ -16,6 +17,7 @@ const TRANSITIONS = {
 };
 
 const Complaints = () => {
+  const { subscribeToEvent } = useSocket();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [updating, setUpdating]     = useState(false);
@@ -58,6 +60,33 @@ const Complaints = () => {
     fetchComplaints();
     fetchStaff();
   }, [fetchComplaints, fetchStaff]);
+
+  // Subscribe to real-time WebSocket events to update without page reload
+  useEffect(() => {
+    const unsubscribeCreated = subscribeToEvent('itemCreated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+
+    const unsubscribeUpdated = subscribeToEvent('itemUpdated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+
+    const unsubscribeData = subscribeToEvent('dataUpdated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+
+    return () => {
+      unsubscribeCreated();
+      unsubscribeUpdated();
+      unsubscribeData();
+    };
+  }, [subscribeToEvent, fetchComplaints]);
 
   const handleStatusUpdate = async (newStatus) => {
     if (!selected) return;

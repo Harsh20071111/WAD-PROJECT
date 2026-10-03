@@ -1,9 +1,11 @@
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const { initSocket } = require('./utils/socket');
 
 // Load environment variables first
 dotenv.config();
@@ -80,9 +82,13 @@ const PORT = Number(process.env.PORT || 5000);
 
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, '0.0.0.0', () =>
+
+  const server = http.createServer(app);
+  initSocket(server, allowedOrigins);
+
+  server.listen(PORT, '0.0.0.0', () =>
     console.log(
-      `✅ PG Management server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+      `✅ PG Management server with WebSockets running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
     )
   );
 };

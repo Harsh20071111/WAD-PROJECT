@@ -28,6 +28,7 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [availabilityAlert, setAvailabilityAlert] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     api.get('/rooms/public')
@@ -65,8 +66,7 @@ const Contact = () => {
       setSubmitted(true);
     } catch (err) {
       console.error('Failed to submit enquiry:', err);
-      // Fall back to success if backend is in mock/offline mode
-      setSubmitted(true);
+      setErrorMsg(err.response?.data?.message || 'Failed to send enquiry. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -190,6 +190,12 @@ const Contact = () => {
                   <textarea name="message" rows={4} className="input" placeholder="Tell us about your requirements — room type, budget, duration..."
                     value={form.message} onChange={handle} />
                 </div>
+
+                {errorMsg && (
+                  <div className="p-3 bg-error-container text-on-error-container text-body-sm rounded-lg">
+                    {errorMsg}
+                  </div>
+                )}
 
                 <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
                   {loading ? <span className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" /> : <Icon name="send" size={18} />}

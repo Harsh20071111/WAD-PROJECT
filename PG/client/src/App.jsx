@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Layouts
@@ -42,59 +43,61 @@ import StaffTasks from './pages/staff/Tasks';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/contact" element={<Contact />} />
-          </Route>
-
-          <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
-            <Route element={<StaffLayout />}>
-              <Route path="/staff/tasks" element={<StaffTasks />} />
+      <SocketProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/rooms" element={<Rooms />} />
+              <Route path="/contact" element={<Contact />} />
             </Route>
-          </Route>
 
-          {/* Auth */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/design-preview" element={<DesignPreview />} />
-
-          {/* Admin routes */}
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/rooms" element={<RoomsBedMatrix />} />
-              <Route path="/admin/residents" element={<ResidentsDirectory />} />
-              <Route path="/admin/payments" element={<Payments />} />
-              <Route path="/admin/receipts" element={<Receipts />} />
-              <Route path="/admin/complaints" element={<Complaints />} />
-              <Route path="/admin/staff" element={<Staff />} />
-              <Route path="/admin/notices" element={<Notices />} />
-              <Route path="/admin/feedback" element={<Feedback />} />
-              <Route path="/admin/enquiries" element={<Enquiries />} />
-              <Route path="/admin/activity" element={<ActivityLog />} />
+            <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
+              <Route element={<StaffLayout />}>
+                <Route path="/staff/tasks" element={<StaffTasks />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Resident routes */}
-          <Route element={<ProtectedRoute allowedRoles={['RESIDENT']} />}>
-            <Route element={<ResidentLayout />}>
-              <Route path="/resident/dashboard" element={<ResidentDashboard />} />
-              <Route path="/resident/room" element={<MyRoom />} />
-              <Route path="/resident/payments" element={<ResidentPayments />} />
-              <Route path="/resident/complaints" element={<ResidentComplaints />} />
-              <Route path="/resident/notices" element={<ResidentNotices />} />
+            {/* Auth */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/design-preview" element={<DesignPreview />} />
+
+            {/* Admin routes */}
+            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/rooms" element={<RoomsBedMatrix />} />
+                <Route path="/admin/residents" element={<ResidentsDirectory />} />
+                <Route path="/admin/payments" element={<Payments />} />
+                <Route path="/admin/receipts" element={<Receipts />} />
+                <Route path="/admin/complaints" element={<Complaints />} />
+                <Route path="/admin/staff" element={<Staff />} />
+                <Route path="/admin/notices" element={<Notices />} />
+                <Route path="/admin/feedback" element={<Feedback />} />
+                <Route path="/admin/enquiries" element={<Enquiries />} />
+                <Route path="/admin/activity" element={<ActivityLog />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Redirects */}
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/resident" element={<Navigate to="/resident/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Resident routes */}
+            <Route element={<ProtectedRoute allowedRoles={['RESIDENT']} />}>
+              <Route element={<ResidentLayout />}>
+                <Route path="/resident/dashboard" element={<ResidentDashboard />} />
+                <Route path="/resident/room" element={<MyRoom />} />
+                <Route path="/resident/payments" element={<ResidentPayments />} />
+                <Route path="/resident/complaints" element={<ResidentComplaints />} />
+                <Route path="/resident/notices" element={<ResidentNotices />} />
+              </Route>
+            </Route>
+
+            {/* Redirects */}
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/resident" element={<Navigate to="/resident/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </SocketProvider>
     </AuthProvider>
   );
 }

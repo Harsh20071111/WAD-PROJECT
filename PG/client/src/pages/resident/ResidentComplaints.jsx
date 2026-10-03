@@ -3,8 +3,10 @@ import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
+import { useSocket } from '../../context/SocketContext';
 
 const ResidentComplaints = () => {
+  const { subscribeToEvent } = useSocket();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +39,30 @@ const ResidentComplaints = () => {
   useEffect(() => {
     fetchComplaints();
   }, [fetchComplaints]);
+
+  // Subscribe to real-time WebSocket events for instant status sync
+  useEffect(() => {
+    const unsubUpdated = subscribeToEvent('itemUpdated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+    const unsubCreated = subscribeToEvent('itemCreated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+    const unsubData = subscribeToEvent('dataUpdated', (eventData) => {
+      if (eventData?.data?.type === 'complaint') {
+        fetchComplaints();
+      }
+    });
+    return () => {
+      unsubUpdated();
+      unsubCreated();
+      unsubData();
+    };
+  }, [subscribeToEvent, fetchComplaints]);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();

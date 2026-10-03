@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import { getNotices, createNotice, deleteNotice } from '../../services/management';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 
 const Notices = () => {
   const { user } = useAuth();
+  const { subscribeToEvent } = useSocket();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -14,7 +16,7 @@ const Notices = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchNotices = async () => {
+  const fetchNotices = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getNotices();
@@ -24,11 +26,33 @@ const Notices = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNotices();
-  }, []);
+  }, [fetchNotices]);
+
+  useEffect(() => {
+    const unsubCreated = subscribeToEvent('itemCreated', (e) => {
+      if (e?.data?.type === 'notice') fetchNotices();
+    });
+    const unsubUpdated = subscribeToEvent('itemUpdated', (e) => {
+      if (e?.data?.type === 'notice') fetchNotices();
+    });
+    const unsubDeleted = subscribeToEvent('itemDeleted', (e) => {
+      if (e?.data?.type === 'notice') fetchNotices();
+    });
+    const unsubData = subscribeToEvent('dataUpdated', (e) => {
+      if (e?.data?.type === 'notice') fetchNotices();
+    });
+
+    return () => {
+      unsubCreated();
+      unsubUpdated();
+      unsubDeleted();
+      unsubData();
+    };
+  }, [subscribeToEvent, fetchNotices]);
 
   const handlePublish = async () => {
     if (!form.title.trim() || !form.body.trim()) {

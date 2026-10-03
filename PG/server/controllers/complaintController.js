@@ -7,6 +7,7 @@ const User = require('../models/User');
 const { uploadBuffer } = require('../config/cloudinary');
 const { getSlaHours } = require('../utils/slaCron');
 const { notify, notifyAllAdmins } = require('../utils/notifier');
+const { broadcastEvent } = require('../utils/socket');
 
 const asyncHandler = (fn) => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -81,6 +82,11 @@ const createComplaint = asyncHandler(async (req, res) => {
     message: `${req.user.name} raised a ${category} complaint: "${title}"`,
     link: `/admin/complaints`
   });
+
+  // Broadcast real-time WebSocket updates
+  broadcastEvent('itemCreated', { type: 'complaint', data: complaint });
+  broadcastEvent('countUpdated', { entity: 'complaint', action: 'created' });
+  broadcastEvent('dataUpdated', { type: 'complaint', action: 'created', data: complaint });
 
   res.status(201).json({
     success: true,
@@ -209,6 +215,10 @@ const updateComplaintStatus = asyncHandler(async (req, res) => {
 
   await complaint.save();
 
+  // Broadcast real-time WebSocket updates
+  broadcastEvent('itemUpdated', { type: 'complaint', data: complaint });
+  broadcastEvent('dataUpdated', { type: 'complaint', action: 'updated', data: complaint });
+
   if (status === 'RESOLVED') {
     const resident = await Resident.findById(complaint.residentId);
     if (resident && resident.userId) {
@@ -264,6 +274,10 @@ const reopenComplaint = asyncHandler(async (req, res) => {
   });
 
   await complaint.save();
+
+  // Broadcast real-time WebSocket updates
+  broadcastEvent('itemUpdated', { type: 'complaint', data: complaint });
+  broadcastEvent('dataUpdated', { type: 'complaint', action: 'reopened', data: complaint });
 
   res.status(200).json({
     success: true,
