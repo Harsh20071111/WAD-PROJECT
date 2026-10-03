@@ -29,18 +29,33 @@ router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
     const { name, email, phone, password, gender, monthlyRent, securityDeposit = 0, joiningDate, roomId, bedId } = req.body;
     session.startTransaction();
     const [user] = await User.create([{ name, email: email.toLowerCase().trim(), phone, passwordHash: await bcrypt.hash(password || phone, 10), role: 'RESIDENT' }], { session });
-    let residentRoom = null;
+    let residentRoom = roomId || null;
     let residentBed = null;
     if (bedId) {
       const bedFilter = { _id: bedId, status: 'AVAILABLE' };
       if (req.user.pgId) bedFilter.pgId = req.user.pgId;
       residentBed = await Bed.findOneAndUpdate(bedFilter, { status: 'OCCUPIED' }, { new: true, session });
       if (!residentBed) throw Object.assign(new Error('Bed is unavailable or outside this PG'), { statusCode: 409 });
-      residentRoom = roomId || residentBed.roomId;
+      residentRoom = residentBed.roomId;
+    } else if (roomId) {
+      const bedFilter = { roomId, status: 'AVAILABLE' };
+      if (req.user.pgId) bedFilter.pgId = req.user.pgId;
+      residentBed = await Bed.findOneAndUpdate(bedFilter, { status: 'OCCUPIED' }, { new: true, session });
+      if (!residentBed) {
+        const roomDoc = await Room.findById(roomId);
+        const roomNum = roomDoc ? roomDoc.roomNumber : 'requested';
+        throw Object.assign(new Error(`Room ${roomNum} is fully occupied! No available beds for this room.`), { statusCode: 409 });
+      }
     }
+
     const [resident] = await Resident.create([{
       userId: user._id, pgId: req.user.pgId || null, gender, monthlyRent, securityDeposit, joiningDate, roomId: residentRoom, bedId: residentBed?._id || null, status: 'ACTIVE'
     }], { session });
+
+    if (residentBed) {
+      residentBed.residentId = resident._id;
+      await residentBed.save({ session });
+    }
     await session.commitTransaction();
     res.status(201).json({ success: true, data: await resident.populate([{ path: 'userId', select: 'name email phone role' }, { path: 'roomId' }, { path: 'bedId' }]) });
   } catch (error) {

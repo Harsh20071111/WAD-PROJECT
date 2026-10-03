@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
 const TopBar = ({ title, breadcrumb }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const isResident = user?.role === 'RESIDENT';
 
@@ -58,7 +60,9 @@ const TopBar = ({ title, breadcrumb }) => {
         )}
 
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" title="Notifications">
+        <button 
+          onClick={() => navigate(isResident ? '/resident/notices' : '/admin/complaints')}
+          className="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" title="Notifications">
           <Icon name="notifications" size={20} />
         </button>
 

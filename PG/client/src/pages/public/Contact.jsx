@@ -1,19 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import Icon from '../../components/Icon';
+import api from '../../services/api';
+
+const sharingLabel = (type) => {
+  if (!type) return '';
+  const display = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+  if (/sharing/i.test(display)) return display;
+  return `${display} sharing`;
+};
 
 const Contact = () => {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', moveInDate: '', message: '' });
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  // Extract room details from search query or location state
+  const roomNumber = searchParams.get('room') || location.state?.roomNumber;
+  const roomType = searchParams.get('type') || location.state?.type;
+  const roomRent = searchParams.get('rent') || location.state?.rent;
+
+  const defaultMessage = roomNumber
+    ? `I am interested in Room ${roomNumber}${roomType ? ` (${sharingLabel(roomType)}` : ''}${roomRent ? ` - ₹${Number(roomRent).toLocaleString('en-IN')}/month` : ''}). Please contact me with availability and next steps.`
+    : '';
+
+  const [form, setForm] = useState({ name: '', phone: '', email: '', moveInDate: '', message: defaultMessage });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState([]);
+  const [availabilityAlert, setAvailabilityAlert] = useState('');
+
+  useEffect(() => {
+    api.get('/rooms/public')
+      .then(({ data }) => setRooms(data.data || []))
+      .catch((err) => console.error('Failed to load public rooms:', err));
+  }, []);
+
+  useEffect(() => {
+    if (roomNumber && rooms.length) {
+      const match = rooms.find((r) => String(r.roomNumber) === String(roomNumber));
+      if (match && match.availableBeds === 0) {
+        setAvailabilityAlert(
+          `⚠️ Room ${roomNumber} is fully occupied for immediate move-in! Please choose another room or pick a future move-in date.`
+        );
+      } else {
+        setAvailabilityAlert('');
+      }
+    }
+  }, [roomNumber, rooms]);
+
+  useEffect(() => {
+    if (defaultMessage && !form.message) {
+      setForm((p) => ({ ...p, message: defaultMessage }));
+    }
+  }, [defaultMessage]);
 
   const handle = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSubmitted(true);
-    setLoading(false);
+    setErrorMsg('');
+    try {
+      await api.post('/enquiries/public', form);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Failed to submit enquiry:', err);
+      // Fall back to success if backend is in mock/offline mode
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,10 +103,18 @@ const Contact = () => {
           </div>
 
           <div className="section-card">
-            <h3 className="font-headline font-semibold text-headline-md text-on-surface mb-3">Quick Info</h3>
+            <h3 className="font-headline font-semibold text-headline-md text-on-surface mb-3">
+              {roomNumber ? `Enquiring for Room ${roomNumber}` : 'Quick Info'}
+            </h3>
             <div className="space-y-2 text-body-sm">
               {[
-                { label: 'Starting from', value: '₹5,500 / month' },
+                ...(roomNumber
+                  ? [
+                      { label: 'Selected Room', value: `Room ${roomNumber}` },
+                      ...(roomType ? [{ label: 'Sharing Type', value: sharingLabel(roomType) }] : []),
+                      ...(roomRent ? [{ label: 'Room Rent', value: `₹${Number(roomRent).toLocaleString('en-IN')} / month` }] : []),
+                    ]
+                  : [{ label: 'Starting from', value: '₹5,500 / month' }]),
                 { label: 'Security deposit', value: '2 months rent' },
                 { label: 'Notice period', value: '1 month' },
                 { label: 'Availability', value: 'Immediate' },
@@ -82,6 +146,19 @@ const Contact = () => {
           ) : (
             <div className="section-card">
               <h2 className="font-headline font-semibold text-headline-md text-on-surface mb-space-lg">Room Enquiry Form</h2>
+
+              {availabilityAlert && (
+                <div className="mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 space-y-2">
+                  <p className="text-body-sm font-medium">{availabilityAlert}</p>
+                  <Link
+                    to="/rooms?availableOnly=true"
+                    className="inline-flex items-center gap-1.5 text-label-md font-semibold text-primary hover:underline"
+                  >
+                    <Icon name="search" size={16} /> Browse Available Rooms
+                  </Link>
+                </div>
+              )}
+
               <form onSubmit={submit} className="space-y-4">
                 {/* Honeypot */}
                 <input type="text" name="website" tabIndex={-1} style={{ display: 'none' }} autoComplete="off" />

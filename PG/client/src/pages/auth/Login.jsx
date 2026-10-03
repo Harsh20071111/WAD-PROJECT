@@ -186,7 +186,18 @@ const Login = () => {
             </button>
           </form>
 
-          <p className="text-center text-body-sm text-on-surface-variant">
+          {/* Prominent Search Room CTA for prospective residents */}
+          <div className="pt-2">
+            <Link
+              to="/rooms"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-bold text-body-md transition-all shadow-sm group"
+            >
+              <Icon name="search" size={20} className="group-hover:scale-110 transition-transform" />
+              <span>Looking for a Room? Search Available Rooms</span>
+            </Link>
+          </div>
+
+          <p className="text-center text-body-sm text-on-surface-variant pt-2">
             Only an administrator can create resident accounts.{' '}
             <Link to="/contact" className="text-primary font-semibold hover:underline">Contact admin</Link>
           </p>

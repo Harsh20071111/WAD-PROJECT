@@ -24,6 +24,8 @@ const Complaints = () => {
   const [newOpen, setNewOpen]       = useState(false);
   const [error, setError]           = useState('');
   const [updateNote, setUpdateNote] = useState('');
+  const [staffList, setStaffList]   = useState([]);
+  const [selectedStaffId, setSelectedStaffId] = useState('');
 
   const fetchComplaints = useCallback(async () => {
     try {
@@ -40,21 +42,43 @@ const Complaints = () => {
       setLoading(false);
     }
   }, []);
+  
+  const fetchStaff = useCallback(async () => {
+    try {
+      const { data } = await api.get('/staff');
+      if (data.success) {
+        setStaffList(data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch staff list:', err);
+    }
+  }, []);
 
   useEffect(() => {
     fetchComplaints();
-  }, [fetchComplaints]);
+    fetchStaff();
+  }, [fetchComplaints, fetchStaff]);
 
   const handleStatusUpdate = async (newStatus) => {
     if (!selected) return;
+    if (newStatus === 'ASSIGNED' && !selectedStaffId) {
+      alert('Please select a staff member to assign the ticket to.');
+      return;
+    }
     try {
       setUpdating(true);
-      const { data } = await api.patch(`/complaints/${selected._id}/status`, {
+      const payload = {
         status: newStatus,
         note: updateNote || `Status updated to ${newStatus}`,
-      });
+      };
+      if (newStatus === 'ASSIGNED') {
+        payload.assignedStaffId = selectedStaffId;
+      }
+      
+      const { data } = await api.patch(`/complaints/${selected._id}/status`, payload);
       if (data.success) {
         setUpdateNote('');
+        setSelectedStaffId('');
         setSelected(null);
         await fetchComplaints();
       }
@@ -204,8 +228,8 @@ const Complaints = () => {
       </div>
 
       {/* Detail modal */}
-      <Modal open={!!selected} onClose={() => setSelected(null)} title={`${selected?.requestNo || ''} — ${selected?.title || ''}`} size="lg"
-        footer={<button className="btn-secondary" onClick={() => setSelected(null)}>Close</button>}>
+      <Modal open={!!selected} onClose={() => { setSelected(null); setUpdateNote(''); setSelectedStaffId(''); }} title={`${selected?.requestNo || ''} — ${selected?.title || ''}`} size="lg"
+        footer={<button className="btn-secondary" onClick={() => { setSelected(null); setUpdateNote(''); setSelectedStaffId(''); }}>Close</button>}>
         {selected && (
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
@@ -237,6 +261,32 @@ const Complaints = () => {
                 <div>
                   <input className="input text-sm mb-3" placeholder="Optional note for timeline (e.g. Technician assigned)..."
                     value={updateNote} onChange={(e) => setUpdateNote(e.target.value)} />
+                  
+                  {TRANSITIONS[selected.status]?.includes('ASSIGNED') && (() => {
+                    const matchedStaff = staffList.filter(s => 
+                      s.userId?.isActive !== false && 
+                      s.categories?.some(cat => cat.toLowerCase() === selected.category?.toLowerCase())
+                    );
+                    return (
+                      <>
+                        <select 
+                          className="input text-sm mb-3" 
+                          value={selectedStaffId}
+                          onChange={(e) => setSelectedStaffId(e.target.value)}
+                        >
+                          <option value="">Select Staff to Assign ({selected.category})</option>
+                          {matchedStaff.map(staff => (
+                            <option key={staff._id} value={staff._id}>
+                              {staff.userId?.name || 'Staff Member'} — {staff.categories.join(', ')}
+                            </option>
+                          ))}
+                        </select>
+                        {matchedStaff.length === 0 && (
+                          <p className="text-label-sm text-error mb-2">No staff found with "{selected.category}" specialization.</p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {TRANSITIONS[selected.status].map((nextState) => (

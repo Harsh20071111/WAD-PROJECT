@@ -29,6 +29,8 @@ import Notices from './pages/admin/Notices';
 import Feedback from './pages/admin/Feedback';
 import Enquiries from './pages/admin/Enquiries';
 
+import ActivityLog from './pages/admin/ActivityLog';
+
 // Resident pages
 import ResidentDashboard from './pages/resident/Dashboard';
 import MyRoom from './pages/resident/MyRoom';
@@ -72,6 +74,7 @@ function App() {
               <Route path="/admin/notices" element={<Notices />} />
               <Route path="/admin/feedback" element={<Feedback />} />
               <Route path="/admin/enquiries" element={<Enquiries />} />
+              <Route path="/admin/activity" element={<ActivityLog />} />
             </Route>
           </Route>
 
