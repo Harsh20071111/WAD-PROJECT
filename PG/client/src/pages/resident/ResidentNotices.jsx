@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 
@@ -57,10 +58,7 @@ const ResidentNotices = () => {
 
       <div className="space-y-3">
         {loading ? (
-          <div className="section-card flex items-center justify-center py-12 text-on-surface-variant gap-3">
-            <Icon name="progress_activity" size={24} className="animate-spin text-primary" />
-            <p className="text-body-md">Loading notices...</p>
-          </div>
+          <Loader text="Loading notices..." />
         ) : notices.length > 0 ? (
           notices.map((n) => (
             <div key={n._id} className="section-card hover:shadow-card-hover transition-shadow">

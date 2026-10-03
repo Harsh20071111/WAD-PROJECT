@@ -5,6 +5,7 @@ import Card from "../../components/ui/Card";
 import PageHeader from "../../components/ui/PageHeader";
 import Avatar from "../../components/ui/Avatar";
 import Icon from "../../components/Icon";
+import Loader from "../../components/ui/Loader";
 import api from "../../services/api";
 
 const Metric = ({ label, value, detail, trend, icon, tone }) => (
@@ -80,7 +81,11 @@ const Dashboard = () => {
           <Button icon="person_add" onClick={() => navigate('/admin/residents?action=addResident')}>Add resident</Button>
         }
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {loading ? (
+        <Loader text="Loading dashboard..." className="py-12" />
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric
           label="Total occupancy"
           value={summary ? `${summary.occupancy.occupiedBeds} / ${summary.occupancy.totalBeds}` : "..."}
@@ -190,6 +195,8 @@ const Dashboard = () => {
           </div>
         </Card>
       </div>
+        </>
+      )}
     </div>
   );
 };
