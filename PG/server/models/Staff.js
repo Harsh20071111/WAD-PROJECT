@@ -20,6 +20,14 @@ const staffSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    kycDocumentUrl: {
+      type: String
+    },
+    kycStatus: {
+      type: String,
+      enum: ['PENDING', 'VERIFIED', 'REJECTED'],
+      default: 'PENDING'
     }
   },
   {

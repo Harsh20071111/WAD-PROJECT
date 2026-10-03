@@ -10,7 +10,7 @@ const Staff = () => {
   const [selected, setSelected] = useState(null);
   
   const [staffList, setStaffList] = useState([]);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', categories: [] });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', categories: [], document: null });
 
   const fetchStaff = async () => {
     try {
@@ -23,7 +23,9 @@ const Staff = () => {
         isActive: staff.userId?.isActive ?? true,
         categories: staff.categories || [],
         assigned: staff.assignedTickets || 0,
-        resolved: staff.resolvedTickets || 0
+        resolved: staff.resolvedTickets || 0,
+        kycStatus: staff.kycStatus || 'PENDING',
+        kycDocumentUrl: staff.kycDocumentUrl || null
       }));
       setStaffList(mapped);
     } catch (err) {
@@ -36,28 +38,39 @@ const Staff = () => {
   }, []);
 
   const handleAddStaff = async () => {
-    if (!formData.name || !formData.email || !formData.password || formData.categories.length === 0) {
-      alert("Please fill all required fields and select at least one category");
+    if (!formData.name || !formData.email || !formData.password || formData.categories.length === 0 || !formData.document) {
+      alert("Please fill all required fields, select at least one category, and upload a KYC document");
       return;
     }
     try {
-      const { data } = await api.post('/staff', formData);
-      const newStaff = {
-        _id: data.data._id,
-        name: data.data.userId?.name || formData.name,
-        email: data.data.userId?.email || formData.email,
-        phone: data.data.userId?.phone || formData.phone,
-        isActive: data.data.userId?.isActive ?? true,
-        categories: data.data.categories || formData.categories,
-        assigned: 0,
-        resolved: 0
-      };
-      setStaffList([newStaff, ...staffList]);
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('email', formData.email);
+      payload.append('phone', formData.phone);
+      payload.append('password', formData.password);
+      formData.categories.forEach(c => payload.append('categories', c));
+      payload.append('image', formData.document);
+
+      await api.post('/staff', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      await fetchStaff();
       setAddOpen(false);
-      setFormData({ name: '', email: '', phone: '', password: '', categories: [] });
+      setFormData({ name: '', email: '', phone: '', password: '', categories: [], document: null });
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || err.message);
+    }
+  };
+
+  const handleVerify = async (id, status) => {
+    try {
+      await api.patch(`/staff/${id}/kyc`, { status });
+      await fetchStaff();
+      setSelected(prev => ({ ...prev, kycStatus: status }));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update KYC status');
     }
   };
 
@@ -98,6 +111,7 @@ const Staff = () => {
     },
     { key: 'assigned', label: 'Active Tasks', render: (v) => <span className="font-semibold tabular-nums text-secondary">{v}</span> },
     { key: 'resolved', label: 'Resolved', render: (v) => <span className="font-semibold tabular-nums text-primary">{v}</span> },
+    { key: 'kycStatus', label: 'KYC', render: (v) => <StatusBadge status={v} /> },
     { key: 'isActive', label: 'Status', render: (v) => <StatusBadge status={v ? 'ACTIVE' : 'CHECKED_OUT'} /> },
     {
       key: '_id', label: '',
@@ -165,6 +179,10 @@ const Staff = () => {
               <label className="label">Password</label>
               <input className="input" type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
             </div>
+            <div className="col-span-2">
+              <label className="label">KYC Document (Aadhaar)</label>
+              <input className="input" type="file" accept="image/*" onChange={(e) => setFormData({...formData, document: e.target.files[0]})} />
+            </div>
           </div>
           <div>
             <label className="label">Specialization Categories</label>
@@ -199,6 +217,27 @@ const Staff = () => {
                 ))}
               </div>
             </div>
+            {selected.kycDocumentUrl && (
+              <div className="pt-4 border-t border-outline-variant/30 mt-4">
+                <p className="label mb-2">KYC Document</p>
+                <div className="flex gap-4 items-start">
+                  <a href={selected.kycDocumentUrl} target="_blank" rel="noreferrer" className="block w-32 h-32 bg-surface-container rounded-lg overflow-hidden border border-outline-variant">
+                    <img src={selected.kycDocumentUrl} alt="KYC Document" className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                  </a>
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <StatusBadge status={selected.kycStatus} />
+                    </div>
+                    {selected.kycStatus === 'PENDING' && (
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={() => handleVerify(selected._id, 'VERIFIED')} className="btn-primary py-1.5 px-3 bg-[#4caf50] hover:bg-[#43a047] text-white">Approve KYC</button>
+                        <button onClick={() => handleVerify(selected._id, 'REJECTED')} className="btn-secondary py-1.5 px-3 text-error border-error/50">Reject KYC</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Modal>
