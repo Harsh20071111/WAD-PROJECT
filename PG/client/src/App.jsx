@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import InstallPWA from './components/InstallPWA';
 
 // Layouts
 import PublicLayout    from './layouts/PublicLayout';
@@ -39,6 +40,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <InstallPWA />
         <Routes>
           {/* Public routes */}
           <Route element={<PublicLayout />}>
