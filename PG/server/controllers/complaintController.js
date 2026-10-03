@@ -120,6 +120,11 @@ const getComplaints = asyncHandler(async (req, res) => {
     }
   }
 
+  // Scope by pgId for admins/staff if they have one
+  if (req.user.pgId) {
+    filter.pgId = req.user.pgId;
+  }
+
   if (status) filter.status = status;
   if (category) filter.category = category;
 

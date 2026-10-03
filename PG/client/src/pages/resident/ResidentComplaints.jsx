@@ -3,6 +3,7 @@ import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
 import Loader from '../../components/ui/Loader';
+import PullToRefresh from '../../components/PullToRefresh';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 
@@ -98,7 +99,8 @@ const ResidentComplaints = () => {
   };
 
   return (
-    <div className="flex flex-col w-full space-y-space-lg max-w-3xl">
+    <PullToRefresh onRefresh={fetchComplaints}>
+      <div className="flex flex-col w-full space-y-space-lg max-w-3xl">
       <div className="page-header">
         <div>
           <h1 className="font-headline font-bold text-headline-xl text-on-surface">Service Requests</h1>
@@ -256,6 +258,7 @@ const ResidentComplaints = () => {
       </Modal>
 
     </div>
+    </PullToRefresh>
   );
 };
 

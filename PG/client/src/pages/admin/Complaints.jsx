@@ -5,6 +5,7 @@ import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import Loader from '../../components/ui/Loader';
+import PullToRefresh from '../../components/PullToRefresh';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 
@@ -201,7 +202,8 @@ const Complaints = () => {
   ];
 
   return (
-    <div className="flex flex-col w-full space-y-space-lg">
+    <PullToRefresh onRefresh={fetchComplaints}>
+      <div className="flex flex-col w-full space-y-space-lg">
       {/* Header */}
       <div className="page-header">
         <div>
@@ -356,6 +358,7 @@ const Complaints = () => {
         )}
       </Modal>
     </div>
+    </PullToRefresh>
   );
 };
 
