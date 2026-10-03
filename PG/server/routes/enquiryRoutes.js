@@ -3,11 +3,20 @@ const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
 const Enquiry = require('../models/Enquiry');
 const PG = require('../models/PG');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
+const enquiryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: { success: false, message: 'Too many enquiries submitted from this IP, please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Public route: submit an enquiry from the website (no auth required)
-router.post('/public', async (req, res, next) => {
+router.post('/public', enquiryLimiter, async (req, res, next) => {
   try {
     let pgId = req.body.pgId;
     if (!pgId) {
