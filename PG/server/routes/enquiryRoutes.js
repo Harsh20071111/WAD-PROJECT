@@ -18,6 +18,23 @@ router.post('/public', async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'PG identifier not found' });
     }
 
+    const turnstileToken = req.body.turnstileToken;
+    if (!turnstileToken) {
+      return res.status(400).json({ success: false, message: 'Captcha token missing. Please complete the captcha.' });
+    }
+
+    const secret = process.env.TURNSTILE_SECRET || '0x4AAAAAAFMlU2HDadpXsPXEsu0WpiSLWyc';
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret, response: turnstileToken }),
+    });
+    
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      return res.status(400).json({ success: false, message: 'Captcha verification failed. Please try again.' });
+    }
+
     const enquiry = await Enquiry.create({
       pgId,
       name: req.body.name,

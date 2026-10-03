@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 const sharingLabel = (type) => {
   if (!type) return '';
@@ -26,6 +27,8 @@ const Contact = () => {
   const [form, setForm] = useState({ name: '', phone: '', email: '', moveInDate: '', message: defaultMessage });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [rooms, setRooms] = useState([]);
   const [availabilityAlert, setAvailabilityAlert] = useState('');
 
@@ -61,12 +64,17 @@ const Contact = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      await api.post('/enquiries/public', form);
+      await api.post('/enquiries/public', { ...form, turnstileToken });
       setSubmitted(true);
+      setTurnstileToken('');
     } catch (err) {
       console.error('Failed to submit enquiry:', err);
-      // Fall back to success if backend is in mock/offline mode
-      setSubmitted(true);
+      // Fall back to success if backend is in mock/offline mode unless it's a captcha or validation error from backend
+      if (err.response?.status === 400) {
+        setErrorMsg(err.response?.data?.message || 'Failed to submit enquiry. Please check your details.');
+      } else {
+        setSubmitted(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -147,6 +155,12 @@ const Contact = () => {
             <div className="section-card">
               <h2 className="font-headline font-semibold text-headline-md text-on-surface mb-space-lg">Room Enquiry Form</h2>
 
+              {errorMsg && (
+                <div className="mb-4 p-4 rounded-xl bg-error-container text-on-error-container text-body-sm font-medium">
+                  {errorMsg}
+                </div>
+              )}
+
               {availabilityAlert && (
                 <div className="mb-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 space-y-2">
                   <p className="text-body-sm font-medium">{availabilityAlert}</p>
@@ -191,10 +205,19 @@ const Contact = () => {
                     value={form.message} onChange={handle} />
                 </div>
 
-                <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
+                <button type="submit" disabled={loading || !turnstileToken} className="btn-primary w-full justify-center py-3">
                   {loading ? <span className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" /> : <Icon name="send" size={18} />}
                   {loading ? 'Sending...' : 'Send Enquiry'}
                 </button>
+                
+                <div className="flex justify-center mt-4">
+                  <Turnstile 
+                    siteKey="0x4AAAAAAFMlU_1wbjLpxzc-" 
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken('')}
+                    onError={() => setTurnstileToken('')}
+                  />
+                </div>
 
                 <p className="text-label-sm text-on-surface-variant text-center">
                   We respect your privacy and never share your details.
