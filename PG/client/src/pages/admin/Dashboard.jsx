@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import PageHeader from "../../components/ui/PageHeader";
@@ -55,7 +55,9 @@ const Metric = ({ label, value, detail, trend, icon, tone }) => (
   </Card>
 );
 
-const Dashboard = () => (
+const Dashboard = () => {
+  const navigate = useNavigate();
+  return (
   <div className="space-y-6">
     <PageHeader
       eyebrow="Hub operations center · Live sync 12:44 PM IST"
@@ -66,7 +68,7 @@ const Dashboard = () => (
           <Button variant="secondary" icon="wallet">
             Collect rent
           </Button>
-          <Button icon="person_add">Add resident</Button>
+          <Button icon="person_add" onClick={() => navigate('/admin/residents?action=addResident')}>Add resident</Button>
         </>
       }
     />
@@ -179,6 +181,7 @@ const Dashboard = () => (
       </Card>
     </div>
   </div>
-);
+  );
+};
 
 export default Dashboard;

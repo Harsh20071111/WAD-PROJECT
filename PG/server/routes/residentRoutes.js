@@ -6,21 +6,20 @@ const User = require('../models/User');
 const Resident = require('../models/Resident');
 const Room = require('../models/Room');
 const Bed = require('../models/Bed');
+const { getMe, getDues } = require('../controllers/residentController');
 
 const router = express.Router();
 router.use(protect);
 
-router.get('/me', async (req, res, next) => {
-  try {
-    const resident = await Resident.findOne({ userId: req.user._id, pgId: req.user.pgId }).populate('roomId').populate('bedId');
-    res.json({ success: true, data: resident });
-  } catch (error) { next(error); }
-});
+router.get('/me', restrictTo('RESIDENT'), getMe);
+router.get('/dues', restrictTo('RESIDENT'), getDues);
 
 router.get('/', restrictTo('ADMIN', 'STAFF'), async (req, res, next) => {
   try {
-    const residents = await Resident.find({ pgId: req.user.pgId }).populate('userId', 'name email phone role isActive').populate('roomId').populate('bedId').sort({ createdAt: -1 });
-    res.json({ success: true, data: residents });
+    const filter = {};
+    if (req.user.pgId) filter.pgId = req.user.pgId;
+    const residents = await Resident.find(filter).populate('userId', 'name email phone role isActive').populate('roomId').populate('bedId').sort({ createdAt: -1 });
+    res.json({ success: true, count: residents.length, data: residents });
   } catch (error) { next(error); }
 });
 
@@ -33,12 +32,14 @@ router.post('/', restrictTo('ADMIN'), async (req, res, next) => {
     let residentRoom = null;
     let residentBed = null;
     if (bedId) {
-      residentBed = await Bed.findOneAndUpdate({ _id: bedId, pgId: req.user.pgId, status: 'AVAILABLE' }, { status: 'OCCUPIED' }, { new: true, session });
+      const bedFilter = { _id: bedId, status: 'AVAILABLE' };
+      if (req.user.pgId) bedFilter.pgId = req.user.pgId;
+      residentBed = await Bed.findOneAndUpdate(bedFilter, { status: 'OCCUPIED' }, { new: true, session });
       if (!residentBed) throw Object.assign(new Error('Bed is unavailable or outside this PG'), { statusCode: 409 });
       residentRoom = roomId || residentBed.roomId;
     }
     const [resident] = await Resident.create([{
-      userId: user._id, pgId: req.user.pgId, gender, monthlyRent, securityDeposit, joiningDate, roomId: residentRoom, bedId: residentBed?._id || null, status: 'ACTIVE'
+      userId: user._id, pgId: req.user.pgId || null, gender, monthlyRent, securityDeposit, joiningDate, roomId: residentRoom, bedId: residentBed?._id || null, status: 'ACTIVE'
     }], { session });
     await session.commitTransaction();
     res.status(201).json({ success: true, data: await resident.populate([{ path: 'userId', select: 'name email phone role' }, { path: 'roomId' }, { path: 'bedId' }]) });
@@ -59,7 +60,7 @@ router.post('/bulk', restrictTo('ADMIN'), async (req, res, next) => {
       try {
         session.startTransaction();
         const [user] = await User.create([{ name: item.name, email: item.email.toLowerCase().trim(), phone: item.phone, passwordHash: await bcrypt.hash(item.password || item.phone, 10), role: 'RESIDENT' }], { session });
-        await Resident.create([{ userId: user._id, pgId: req.user.pgId, gender: item.gender || 'OTHER', monthlyRent: item.monthlyRent || 0, securityDeposit: item.securityDeposit || 0, status: 'ACTIVE' }], { session });
+        await Resident.create([{ userId: user._id, pgId: req.user.pgId || null, gender: item.gender || 'OTHER', monthlyRent: item.monthlyRent || 0, securityDeposit: item.securityDeposit || 0, status: 'ACTIVE' }], { session });
         await session.commitTransaction();
         results.successful++;
       } catch (err) {

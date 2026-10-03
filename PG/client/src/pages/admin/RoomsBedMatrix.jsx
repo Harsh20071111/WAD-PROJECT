@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import StatCard from '../../components/StatCard';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
@@ -31,7 +32,9 @@ const RoomsBedMatrix = () => {
   const [addRoomLoading, setAddRoomLoading] = useState(false);
 
   const refresh = async () => { const [roomData, summaryData, residentData] = await Promise.all([getRooms(), getSummary(), getResidentsForAssignment()]); setRooms(roomData); setSummary(summaryData); setResidents(residentData); };
+  const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => { refresh().catch(() => {}); }, []);
+  useEffect(() => { if (searchParams.get('action') === 'addRoom') { setShowAddRoom(true); setSearchParams({}, { replace: true }); } }, [searchParams, setSearchParams]);
   const floors = useMemo(() => [...new Set(rooms.map((room) => room.floor))].sort((a, b) => a - b), [rooms]);
   const visibleRooms = activeFloor === 'all' ? rooms : rooms.filter((room) => String(room.floor) === activeFloor);
   const availableResidents = residents.filter((resident) => !resident.bedId);

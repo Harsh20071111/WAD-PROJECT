@@ -1,8 +1,8 @@
 const express = require('express');
-const cors    = require('cors');
-const helmet  = require('helmet');
-const morgan  = require('morgan');
-const dotenv  = require('dotenv');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
 // Load environment variables first
@@ -46,6 +46,9 @@ app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/enquiries', require('./routes/enquiryRoutes'));
 app.use('/api/feedback', require('./routes/feedbackRoutes'));
 app.use('/api/receipts', require('./routes/receiptRoutes'));
+
+// SLA Breach Cron Job (checks every 5 mins)
+require('./utils/slaCron').initSlaCron();
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

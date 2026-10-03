@@ -1,28 +1,14 @@
 const express = require('express');
+const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
+const { submitFeedback, getStaffRatings } = require('../controllers/feedbackController');
 const Feedback = require('../models/Feedback');
-const Complaint = require('../models/Complaint');
-const Resident = require('../models/Resident');
 
-const router = express.Router();
 router.use(protect);
 
-router.post('/', restrictTo('RESIDENT'), async (req, res, next) => {
-  try {
-    const resident = await Resident.findOne({ userId: req.user._id, pgId: req.user.pgId });
-    if (!resident) return res.status(404).json({ success: false, message: 'Resident profile not found' });
-    if (req.body.complaintId) {
-      const complaint = await Complaint.findOne({ _id: req.body.complaintId, pgId: req.user.pgId, residentId: resident._id });
-      if (!complaint) return res.status(404).json({ success: false, message: 'Complaint not found for this resident' });
-      if (!['RESOLVED', 'CLOSED'].includes(complaint.status)) return res.status(400).json({ success: false, message: 'Feedback is available after resolution' });
-    }
-    res.status(201).json({ success: true, data: await Feedback.create({ ...req.body, pgId: req.user.pgId, residentId: resident._id, type: req.body.type || 'COMPLAINT_FEEDBACK' }) });
-  } catch (error) {
-    if (error.code === 11000) return res.status(409).json({ success: false, message: 'Feedback already submitted for this complaint' });
-    next(error);
-  }
-});
+router.post('/', restrictTo('RESIDENT'), submitFeedback);
+router.get('/staff-ratings', restrictTo('ADMIN'), getStaffRatings);
 
 router.get('/', restrictTo('ADMIN', 'STAFF'), async (req, res, next) => {
   try {
