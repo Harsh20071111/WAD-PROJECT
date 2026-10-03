@@ -4,6 +4,7 @@ const { restrictTo } = require('../middleware/roleMiddleware');
 const Enquiry = require('../models/Enquiry');
 const PG = require('../models/PG');
 const rateLimit = require('express-rate-limit');
+const https = require('https');
 
 const router = express.Router();
 
@@ -33,13 +34,31 @@ router.post('/public', enquiryLimiter, async (req, res, next) => {
     }
 
     const secret = process.env.TURNSTILE_SECRET || '0x4AAAAAAFMlU2HDadpXsPXEsu0WpiSLWyc';
-    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret, response: turnstileToken }),
+    const postData = new URLSearchParams({ secret, response: turnstileToken }).toString();
+
+    const verifyData = await new Promise((resolve, reject) => {
+      const reqConfig = https.request('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': postData.length
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch(e) {
+            resolve({ success: false });
+          }
+        });
+      });
+      reqConfig.on('error', reject);
+      reqConfig.write(postData);
+      reqConfig.end();
     });
-    
-    const verifyData = await verifyRes.json();
+
     if (!verifyData.success) {
       return res.status(400).json({ success: false, message: 'Captcha verification failed. Please try again.' });
     }
