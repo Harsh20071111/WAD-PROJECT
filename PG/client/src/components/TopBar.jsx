@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
 
 const TopBar = ({ title, breadcrumb }) => {
   const { user } = useAuth();
