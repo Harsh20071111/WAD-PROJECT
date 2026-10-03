@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import DataTable from '../../components/DataTable';
 import StatCard from '../../components/StatCard';
 import Icon from '../../components/Icon';
@@ -19,7 +20,21 @@ const Stars = ({ rating }) => (
 );
 
 const Feedback = () => {
-  const avgRating = (MOCK.reduce((s, f) => s + f.rating, 0) / MOCK.length).toFixed(1);
+  const [feedback, setFeedback] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate fetching feedback data
+    const timer = setTimeout(() => {
+      setFeedback(MOCK);
+      setLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const avgRating = feedback.length 
+    ? (feedback.reduce((s, f) => s + f.rating, 0) / feedback.length).toFixed(1)
+    : "0.0";
 
   const columns = [
     {
@@ -55,13 +70,13 @@ const Feedback = () => {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-space-md">
-        <StatCard title="Average Rating" value={<span className="flex items-center gap-2">{avgRating} <Stars rating={Math.round(avgRating)} /></span>} icon="star" iconBg="bg-secondary-fixed" iconColor="text-on-secondary-fixed" />
-        <StatCard title="Total Feedback" value={MOCK.length} icon="reviews" iconBg="bg-surface-container" iconColor="text-primary" />
-        <StatCard title="5-Star Reviews" value={MOCK.filter((f) => f.rating === 5).length} icon="sentiment_very_satisfied" iconBg="bg-primary-fixed" iconColor="text-on-primary-fixed-variant" />
+        <StatCard title="Average Rating" value={<span className="flex items-center gap-2">{avgRating} <Stars rating={Math.round(Number(avgRating))} /></span>} icon="star" iconBg="bg-secondary-fixed" iconColor="text-on-secondary-fixed" />
+        <StatCard title="Total Feedback" value={feedback.length} icon="reviews" iconBg="bg-surface-container" iconColor="text-primary" />
+        <StatCard title="5-Star Reviews" value={feedback.filter((f) => f.rating === 5).length} icon="sentiment_very_satisfied" iconBg="bg-primary-fixed" iconColor="text-on-primary-fixed-variant" />
       </div>
 
       <div className="section-card">
-        <DataTable columns={columns} data={MOCK} emptyMessage="No feedback yet" emptyIcon="reviews" />
+        <DataTable columns={columns} data={feedback} loading={loading} emptyMessage="No feedback yet" emptyIcon="reviews" />
       </div>
     </div>
   );

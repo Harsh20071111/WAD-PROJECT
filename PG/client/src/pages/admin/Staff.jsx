@@ -10,10 +10,12 @@ const Staff = () => {
   const [selected, setSelected] = useState(null);
   
   const [staffList, setStaffList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', categories: [], document: null });
 
   const fetchStaff = async () => {
     try {
+      setLoading(true);
       const { data } = await api.get('/staff');
       const mapped = (data.data || []).map(staff => ({
         _id: staff._id,
@@ -30,6 +32,8 @@ const Staff = () => {
       setStaffList(mapped);
     } catch (err) {
       console.error("Failed to load staff", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,7 +159,7 @@ const Staff = () => {
       </div>
 
       <div className="section-card">
-        <DataTable columns={columns} data={staffList} emptyMessage="No staff found" emptyIcon="engineering" />
+        <DataTable columns={columns} data={staffList} loading={loading} emptyMessage="No staff found" emptyIcon="engineering" />
       </div>
 
       {/* Add Staff Modal */}
