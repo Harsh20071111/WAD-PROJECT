@@ -2,6 +2,7 @@ const express = require('express');
 const { protect } = require('../middleware/authMiddleware');
 const { restrictTo } = require('../middleware/roleMiddleware');
 const Enquiry = require('../models/Enquiry');
+const BlockedContact = require('../models/BlockedContact');
 const PG = require('../models/PG');
 const rateLimit = require('express-rate-limit');
 const https = require('https');
@@ -33,6 +34,28 @@ router.post('/public', enquiryLimiter, async (req, res, next) => {
     const turnstileToken = req.body.turnstileToken;
     if (!turnstileToken) {
       return res.status(400).json({ success: false, message: 'Captcha token missing. Please complete the captcha.' });
+    }
+
+    // Check if phone or email is blocked
+    const phone = req.body.phone;
+    const email = req.body.email || '';
+    
+    if (phone) {
+      const isBlocked = await BlockedContact.findOne({ pgId, value: phone });
+      if (isBlocked) return res.status(403).json({ success: false, message: 'You have been blocked from submitting enquiries.' });
+    }
+    if (email) {
+      const isBlocked = await BlockedContact.findOne({ pgId, value: email.toLowerCase() });
+      if (isBlocked) return res.status(403).json({ success: false, message: 'You have been blocked from submitting enquiries.' });
+    }
+
+    // Check attempt count
+    if (phone) {
+      const attempts = await Enquiry.countDocuments({ pgId, phone });
+      if (attempts >= 5) {
+        await BlockedContact.create({ pgId, value: phone, type: 'PHONE' });
+        return res.status(403).json({ success: false, message: 'You have exceeded the maximum number of enquiries and are now blocked.' });
+      }
     }
 
     const secret = process.env.TURNSTILE_SECRET || '0x4AAAAAAFMlU2HDadpXsPXEsu0WpiSLWyc';
@@ -100,6 +123,19 @@ router.use(protect, restrictTo('ADMIN'));
 router.get('/', async (req, res, next) => {
   try { res.json({ success: true, data: await Enquiry.find({ pgId: req.user.pgId }).populate('roomId', 'roomNumber floor').sort({ createdAt: -1 }) }); }
   catch (error) { next(error); }
+});
+
+router.get('/blocked', async (req, res, next) => {
+  try { res.json({ success: true, data: await BlockedContact.find({ pgId: req.user.pgId }).sort({ createdAt: -1 }) }); }
+  catch (error) { next(error); }
+});
+
+router.delete('/blocked/:id', async (req, res, next) => {
+  try {
+    const blocked = await BlockedContact.findOneAndDelete({ _id: req.params.id, pgId: req.user.pgId });
+    if (!blocked) return res.status(404).json({ success: false, message: 'Blocked contact not found' });
+    res.json({ success: true, data: blocked });
+  } catch (error) { next(error); }
 });
 router.post('/', async (req, res, next) => {
   try {

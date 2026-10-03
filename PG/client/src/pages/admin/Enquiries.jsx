@@ -28,8 +28,16 @@ const Enquiries = () => {
   const navigate = useNavigate();
   const { subscribeToEvent } = useSocket();
   const [enquiries, setEnquiries] = useState([]);
+  const [blockedContacts, setBlockedContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [activeTab, setActiveTab] = useState('ENQUIRIES');
+
+  const fetchBlocked = useCallback(() => {
+    api.get('/enquiries/blocked')
+      .then(({ data }) => setBlockedContacts(data.data || []))
+      .catch((err) => console.error('Failed to fetch blocked contacts:', err));
+  }, []);
 
   const fetchEnquiries = useCallback(() => {
     setLoading(true);
@@ -46,7 +54,8 @@ const Enquiries = () => {
 
   useEffect(() => {
     fetchEnquiries();
-  }, [fetchEnquiries]);
+    fetchBlocked();
+  }, [fetchEnquiries, fetchBlocked]);
 
   // Real-time WebSocket: instantly show new enquiries from public form
   useEffect(() => {
@@ -104,6 +113,15 @@ const Enquiries = () => {
     });
   };
 
+  const unblockContact = async (id) => {
+    try {
+      await api.delete(`/enquiries/blocked/${id}`);
+      setBlockedContacts((prev) => prev.filter((b) => b._id !== id));
+    } catch (err) {
+      console.error('Failed to unblock contact:', err);
+    }
+  };
+
   const columns = [
     {
       key: 'name', label: 'Enquirer',
@@ -141,12 +159,25 @@ const Enquiries = () => {
 
   return (
     <div className="flex flex-col w-full space-y-space-lg">
-      <div>
-        <h1 className="font-headline font-bold text-headline-xl text-on-surface">Enquiries & Leads</h1>
-        <p className="text-body-md text-on-surface-variant">Manage room enquiries from prospective residents</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-headline font-bold text-headline-xl text-on-surface">Enquiries & Leads</h1>
+          <p className="text-body-md text-on-surface-variant">Manage room enquiries and blocked users</p>
+        </div>
+        <div className="flex gap-2">
+          {['ENQUIRIES', 'BLOCKED'].map((t) => (
+            <button key={t} onClick={() => setActiveTab(t)}
+              className={`px-4 py-2 rounded-lg text-label-md font-medium whitespace-nowrap transition-all
+                ${activeTab === t ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container hover:bg-surface-container-high text-on-surface'}`}>
+              {t === 'ENQUIRIES' ? `Enquiries (${enquiries.length})` : `Blocked (${blockedContacts.length})`}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+      {activeTab === 'ENQUIRIES' ? (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-space-md">
         {[
           { label: 'Total Enquiries', value: enquiries.length, icon: 'contact_phone', bg: 'bg-surface-container', color: 'text-primary' },
           { label: 'New', value: enquiries.filter((e) => e.status === 'NEW').length, icon: 'fiber_new', bg: 'bg-tertiary-fixed', color: 'text-on-tertiary-fixed' },
@@ -163,9 +194,34 @@ const Enquiries = () => {
         ))}
       </div>
 
-      <div className="section-card">
-        <DataTable columns={columns} data={enquiries} loading={loading} emptyMessage="No enquiries yet" emptyIcon="contact_phone" />
-      </div>
+          <div className="section-card">
+            <DataTable columns={columns} data={enquiries} loading={loading} emptyMessage="No enquiries yet" emptyIcon="contact_phone" />
+          </div>
+        </>
+      ) : (
+        <div className="section-card">
+          <DataTable 
+            columns={[
+              { key: 'value', label: 'Blocked Contact' },
+              { key: 'type', label: 'Type' },
+              { key: 'createdAt', label: 'Blocked On', render: (v) => new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) },
+              { key: 'reason', label: 'Reason' },
+              {
+                key: '_id', label: 'Action',
+                render: (_, row) => (
+                  <button onClick={() => unblockContact(row._id)} className="btn-secondary py-1 px-3 text-label-sm">
+                    Unblock
+                  </button>
+                )
+              }
+            ]} 
+            data={blockedContacts} 
+            loading={loading} 
+            emptyMessage="No blocked contacts" 
+            emptyIcon="check_circle" 
+          />
+        </div>
+      )}
 
       <Modal open={!!selected} onClose={() => setSelected(null)} title={`Enquiry — ${selected?.name}`} size="md"
         footer={
