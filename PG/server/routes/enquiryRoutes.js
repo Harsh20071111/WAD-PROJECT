@@ -6,6 +6,7 @@ const PG = require('../models/PG');
 const rateLimit = require('express-rate-limit');
 const https = require('https');
 const notify = require('../utils/notify');
+const { broadcastEvent } = require('../utils/socket');
 
 const router = express.Router();
 
@@ -75,13 +76,18 @@ router.post('/public', enquiryLimiter, async (req, res, next) => {
       status: 'NEW',
     });
 
-    // Notify admins
+    // Notify admins via push
     notify.notifyAdmins(pgId, {
       type: 'ENQUIRY',
       title: 'New enquiry',
       message: `${req.body.name} asked about a room`,
       link: '/admin/enquiries'
     });
+
+    // Broadcast to admin in real-time
+    broadcastEvent('itemCreated', { type: 'enquiry', data: enquiry });
+    broadcastEvent('countUpdated', { entity: 'enquiry', action: 'created' });
+    broadcastEvent('dataUpdated', { type: 'enquiry', action: 'created', data: enquiry });
 
     res.status(201).json({ success: true, data: enquiry });
   } catch (error) {
@@ -96,7 +102,7 @@ router.get('/', async (req, res, next) => {
   catch (error) { next(error); }
 });
 router.post('/', async (req, res, next) => {
-  try { 
+  try {
     const enquiry = await Enquiry.create({ ...req.body, pgId: req.user.pgId });
     notify.notifyAdmins(req.user.pgId, {
       type: 'ENQUIRY',
@@ -104,7 +110,9 @@ router.post('/', async (req, res, next) => {
       message: `${req.body.name} asked about a room`,
       link: '/admin/enquiries'
     });
-    res.status(201).json({ success: true, data: enquiry }); 
+    broadcastEvent('itemCreated', { type: 'enquiry', data: enquiry });
+    broadcastEvent('countUpdated', { entity: 'enquiry', action: 'created' });
+    res.status(201).json({ success: true, data: enquiry });
   }
   catch (error) { next(error); }
 });
@@ -125,6 +133,10 @@ router.patch('/:id', async (req, res, next) => {
     }
     Object.assign(current, req.body);
     await current.save();
+
+    broadcastEvent('itemUpdated', { type: 'enquiry', data: current });
+    broadcastEvent('dataUpdated', { type: 'enquiry', action: 'updated', data: current });
+
     res.json({ success: true, data: current });
   } catch (error) { next(error); }
 });
@@ -132,6 +144,10 @@ router.delete('/:id', async (req, res, next) => {
   try {
     const enquiry = await Enquiry.findOneAndDelete({ _id: req.params.id, pgId: req.user.pgId });
     if (!enquiry) return res.status(404).json({ success: false, message: 'Enquiry not found' });
+
+    broadcastEvent('itemDeleted', { type: 'enquiry', data: enquiry });
+    broadcastEvent('countUpdated', { entity: 'enquiry', action: 'deleted' });
+
     res.json({ success: true, data: enquiry });
   } catch (error) { next(error); }
 });

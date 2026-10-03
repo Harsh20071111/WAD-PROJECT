@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
 import api from '../../services/api';
+import { useSocket } from '../../context/SocketContext';
 
 const MOCK_FALLBACK = [
   { _id: '1', name: 'Vikram Singh', phone: '+91 9400000001', email: 'vikram@email.com', moveInDate: '2026-11-01', message: 'Looking for single room with attached bathroom and parking.', status: 'NEW', createdAt: '2026-10-01' },
@@ -25,11 +26,12 @@ const parseRoomFromMessage = (msg) => {
 
 const Enquiries = () => {
   const navigate = useNavigate();
+  const { subscribeToEvent } = useSocket();
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
 
-  const fetchEnquiries = () => {
+  const fetchEnquiries = useCallback(() => {
     setLoading(true);
     api.get('/enquiries')
       .then(({ data }) => {
@@ -40,11 +42,34 @@ const Enquiries = () => {
         setEnquiries(MOCK_FALLBACK);
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchEnquiries();
-  }, []);
+  }, [fetchEnquiries]);
+
+  // Real-time WebSocket: instantly show new enquiries from public form
+  useEffect(() => {
+    const unsubCreated = subscribeToEvent('itemCreated', (e) => {
+      if (e?.data?.type === 'enquiry') fetchEnquiries();
+    });
+    const unsubUpdated = subscribeToEvent('itemUpdated', (e) => {
+      if (e?.data?.type === 'enquiry') fetchEnquiries();
+    });
+    const unsubDeleted = subscribeToEvent('itemDeleted', (e) => {
+      if (e?.data?.type === 'enquiry') fetchEnquiries();
+    });
+    const unsubData = subscribeToEvent('dataUpdated', (e) => {
+      if (e?.data?.type === 'enquiry') fetchEnquiries();
+    });
+
+    return () => {
+      unsubCreated();
+      unsubUpdated();
+      unsubDeleted();
+      unsubData();
+    };
+  }, [subscribeToEvent, fetchEnquiries]);
 
   const updateStatus = async (id, newStatus) => {
     try {
