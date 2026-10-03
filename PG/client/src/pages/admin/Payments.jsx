@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import { getPayments, runRent, applyLateFees, recordManualPayment, updateLateFeeConfig, getMyPG, getResidents, createCustomPayment } from '../../services/management';
 
 const Payments = () => {
@@ -19,7 +20,8 @@ const Payments = () => {
   const [manualForm, setManualForm] = useState({ residentId: '', amount: '', mode: 'UPI', utr: '' });
   const [customForm, setCustomForm] = useState({ residentId: '', month: new Date().toISOString().slice(0, 7), amount: '' });
 
-  const load = async () => {
+  const load = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
       const [paymentsData, pgData, resData] = await Promise.all([
         getPayments(),
@@ -33,12 +35,14 @@ const Payments = () => {
       setResidents(resData.filter(r => r.status === 'ACTIVE'));
     } catch (err) {
       setError(err.response?.data?.message || 'Unable to load payments.');
+    } finally {
+      if (isInitial) setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
-    const timer = setInterval(load, 10000);
+    load(true);
+    const timer = setInterval(() => load(false), 10000);
     return () => clearInterval(timer);
   }, []);
 
@@ -164,58 +168,62 @@ const Payments = () => {
       {error && <div className="p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">{error}</div>}
       {actionMessage && <div className="p-3 rounded-lg bg-primary-container text-on-primary-container text-body-sm">{actionMessage}</div>}
 
-      <div className="section-card overflow-x-auto">
-        <table className="w-full text-body-sm">
-          <thead>
-            <tr className="text-left text-label-sm text-on-surface-variant">
-              <th className="p-3">Resident</th>
-              <th className="p-3">Month</th>
-              <th className="p-3">Total Amount</th>
-              <th className="p-3">Paid</th>
-              <th className="p-3">Due Date</th>
-              <th className="p-3">Overdue Aging</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => {
-              const daysOverdue = getDaysOverdue(item);
-              const isOverdue = daysOverdue > 0 && item.status !== 'PAID';
-              return (
-                <tr key={item._id} className="border-t border-outline-variant/40">
-                  <td className="p-3 font-semibold">{item.residentId?.userId?.name || 'Resident'}</td>
-                  <td className="p-3">{item.month}</td>
-                  <td className="p-3">₹{item.amount?.toLocaleString('en-IN')}</td>
-                  <td className="p-3">₹{item.paidAmount?.toLocaleString('en-IN')}</td>
-                  <td className="p-3">{new Date(item.dueDate).toLocaleDateString('en-IN')}</td>
-                  <td className="p-3">
-                    {isOverdue ? (
-                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${daysOverdue > pgConfig.graceDays ? 'bg-error text-on-error' : 'bg-orange-500/20 text-orange-600'}`}>
-                        {daysOverdue} days
-                      </span>
-                    ) : '-'}
-                  </td>
-                  <td className="p-3"><StatusBadge status={item.status} /></td>
-                  <td className="p-3 text-right">
-                    <button
-                      title="Edit Amount"
-                      onClick={() => {
-                        setCustomForm({ residentId: item.residentId?._id, month: item.month, amount: item.amount });
-                        setShowCustomModal(true);
-                      }}
-                      className="text-primary hover:bg-primary-container p-2 rounded-full transition-colors"
-                    >
-                      <Icon name="edit" size={18} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {!items.length && <tr><td colSpan="8" className="p-10 text-center text-on-surface-variant">No payments found.</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <Loader text="Loading payments..." />
+      ) : (
+        <div className="section-card overflow-x-auto">
+          <table className="w-full text-body-sm">
+            <thead>
+              <tr className="text-left text-label-sm text-on-surface-variant">
+                <th className="p-3">Resident</th>
+                <th className="p-3">Month</th>
+                <th className="p-3">Total Amount</th>
+                <th className="p-3">Paid</th>
+                <th className="p-3">Due Date</th>
+                <th className="p-3">Overdue Aging</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => {
+                const daysOverdue = getDaysOverdue(item);
+                const isOverdue = daysOverdue > 0 && item.status !== 'PAID';
+                return (
+                  <tr key={item._id} className="border-t border-outline-variant/40">
+                    <td className="p-3 font-semibold">{item.residentId?.userId?.name || 'Resident'}</td>
+                    <td className="p-3">{item.month}</td>
+                    <td className="p-3">₹{item.amount?.toLocaleString('en-IN')}</td>
+                    <td className="p-3">₹{item.paidAmount?.toLocaleString('en-IN')}</td>
+                    <td className="p-3">{new Date(item.dueDate).toLocaleDateString('en-IN')}</td>
+                    <td className="p-3">
+                      {isOverdue ? (
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${daysOverdue > pgConfig.graceDays ? 'bg-error text-on-error' : 'bg-orange-500/20 text-orange-600'}`}>
+                          {daysOverdue} days
+                        </span>
+                      ) : '-'}
+                    </td>
+                    <td className="p-3"><StatusBadge status={item.status} /></td>
+                    <td className="p-3 text-right">
+                      <button
+                        title="Edit Amount"
+                        onClick={() => {
+                          setCustomForm({ residentId: item.residentId?._id, month: item.month, amount: item.amount });
+                          setShowCustomModal(true);
+                        }}
+                        className="text-primary hover:bg-primary-container p-2 rounded-full transition-colors"
+                      >
+                        <Icon name="edit" size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {!items.length && <tr><td colSpan="8" className="p-10 text-center text-on-surface-variant">No payments found.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <Modal open={showConfigModal} onClose={() => setShowConfigModal(false)} title="Late Fee Configuration">
         <form onSubmit={handleUpdateConfig} className="space-y-4">

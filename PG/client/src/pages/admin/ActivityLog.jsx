@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Avatar from "../../components/ui/Avatar";
+import Loader from "../../components/ui/Loader";
 import api from "../../services/api";
 
 const ActivityLog = () => {
@@ -44,7 +45,7 @@ const ActivityLog = () => {
       />
       <Card className="p-5 sm:p-6">
         {loading ? (
-          <p className="text-body-sm text-on-surface-variant">Loading...</p>
+          <Loader text="Loading activity log..." />
         ) : activity.length > 0 ? (
           <div className="divide-y divide-slate-200">
             {activity.map((item, idx) => (

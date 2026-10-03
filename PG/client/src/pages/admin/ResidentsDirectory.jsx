@@ -3,6 +3,7 @@ import { useSearchParams, useLocation } from 'react-router-dom';
 import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import api from '../../services/api';
 import { createResident, getResidents, bulkImportResidents } from '../../services/management';
 
@@ -18,8 +19,10 @@ const ResidentsDirectory = () => {
   const [error, setError] = useState('');
   const [roomAlert, setRoomAlert] = useState('');
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
-  const load = async () => {
+  const load = async (isInitial = false) => {
+    if (isInitial) setInitialLoading(true);
     try {
       const [resData, roomsRes] = await Promise.all([
         getResidents(),
@@ -29,13 +32,15 @@ const ResidentsDirectory = () => {
       setRooms(roomsRes);
     } catch (err) {
       setError(err.response?.data?.message || 'Unable to load residents.');
+    } finally {
+      if (isInitial) setInitialLoading(false);
     }
   };
 
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  useEffect(() => { load(); const timer = setInterval(load, 10000); return () => clearInterval(timer); }, []);
+  useEffect(() => { load(true); const timer = setInterval(() => load(false), 10000); return () => clearInterval(timer); }, []);
 
   useEffect(() => {
     const action = searchParams.get('action');
@@ -169,8 +174,11 @@ const ResidentsDirectory = () => {
         </div>
       </div>
 
-      <div className="section-card overflow-x-auto">
-        <table className="w-full text-body-sm">
+      {initialLoading ? (
+        <Loader text="Loading residents..." />
+      ) : (
+        <div className="section-card overflow-x-auto">
+          <table className="w-full text-body-sm">
           <thead>
             <tr className="text-left text-label-sm text-on-surface-variant">
               <th className="p-3">Resident</th>
@@ -201,6 +209,7 @@ const ResidentsDirectory = () => {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Add Resident Modal */}
       <Modal open={open} onClose={() => setOpen(false)} title="Create Resident Account" size="lg" footer={<><button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button><button type="submit" form="resident-form" className="btn-primary" disabled={loading}>{loading ? 'Creating...' : 'Create Resident'}</button></>}>

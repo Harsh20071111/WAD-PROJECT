@@ -4,6 +4,7 @@ import StatusBadge from '../../components/StatusBadge';
 import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import api from '../../services/api';
 
 const TRANSITIONS = {
@@ -218,10 +219,7 @@ const Complaints = () => {
           ))}
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-on-surface-variant gap-3">
-            <Icon name="progress_activity" size={24} className="animate-spin text-primary" />
-            <p className="text-body-md">Loading complaints queue...</p>
-          </div>
+          <Loader text="Loading complaints queue..." />
         ) : (
           <DataTable columns={columns} data={filtered} emptyMessage="No complaints found" emptyIcon="build" />
         )}

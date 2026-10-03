@@ -147,13 +147,12 @@ const Receipts = () => {
           <h1 className="font-headline font-bold text-headline-xl text-on-surface">Payment Receipts</h1>
           <p className="text-body-md text-on-surface-variant">Download and manage all generated rent receipts</p>
         </div>
-        {loading && <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
       </div>
 
       {error && <div className="p-3 rounded-lg bg-error-container text-on-error-container text-body-sm">{error}</div>}
 
       <div className="section-card">
-        <DataTable columns={columns} data={receipts} emptyMessage="No receipts yet" emptyIcon="receipt_long" />
+        <DataTable columns={columns} data={receipts} loading={loading} emptyMessage="No receipts yet" emptyIcon="receipt_long" />
       </div>
     </div>
   );

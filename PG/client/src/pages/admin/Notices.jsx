@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import { getNotices, createNotice, deleteNotice } from '../../services/management';
 import { useAuth } from '../../context/AuthContext';
 
@@ -77,7 +78,7 @@ const Notices = () => {
 
       <div className="grid gap-space-md">
         {loading ? (
-          <div className="flex justify-center p-8"><span className="animate-pulse text-on-surface-variant">Loading notices...</span></div>
+          <Loader text="Loading notices..." />
         ) : notices.length > 0 ? (
           notices.map((n) => (
             <div key={n._id} className="section-card hover:shadow-card-hover transition-shadow">

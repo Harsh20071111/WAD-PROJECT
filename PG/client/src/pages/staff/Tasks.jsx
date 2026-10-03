@@ -5,6 +5,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import api from '../../services/api';
 
 const TRANSITIONS = {
@@ -106,10 +107,7 @@ const Tasks = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-on-surface-variant gap-3">
-          <Icon name="progress_activity" size={24} className="animate-spin text-primary" />
-          <p className="text-body-md">Loading your tasks...</p>
-        </div>
+        <Loader text="Loading your tasks..." />
       ) : activeTasks.length === 0 && resolvedTasks.length === 0 ? (
         <EmptyState icon="assignment" title="No tasks yet" description="Your assigned maintenance work will be listed here." />
       ) : (

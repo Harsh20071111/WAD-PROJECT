@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import Icon from '../../components/Icon';
+import Loader from '../../components/ui/Loader';
 import api from '../../services/api';
 
 const ResidentComplaints = () => {
@@ -91,10 +92,7 @@ const ResidentComplaints = () => {
 
       <div className="space-y-3">
         {loading ? (
-          <div className="section-card flex items-center justify-center py-12 text-on-surface-variant gap-3">
-            <Icon name="progress_activity" size={24} className="animate-spin text-primary" />
-            <p className="text-body-md">Loading service requests...</p>
-          </div>
+          <Loader text="Loading service requests..." className="section-card py-12" />
         ) : (
           complaints.map((c) => {
             const assignedName = getAssignedName(c);
