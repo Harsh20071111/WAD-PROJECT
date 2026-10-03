@@ -1,15 +1,18 @@
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getMessaging } = require('firebase-admin/messaging');
 
 let isInitialized = false;
+let messagingObj = null;
 
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
     const serviceAccountJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8');
     const serviceAccount = JSON.parse(serviceAccountJson);
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
+    const app = initializeApp({
+      credential: cert(serviceAccount)
     });
+    messagingObj = getMessaging(app);
     isInitialized = true;
     console.log('✅ Firebase Admin initialized');
   } else {
@@ -25,7 +28,6 @@ const noop = new Proxy({}, {
 });
 
 module.exports = {
-  admin,
-  messaging: isInitialized ? admin.messaging() : noop,
+  messaging: isInitialized ? messagingObj : noop,
   isInitialized
 };
