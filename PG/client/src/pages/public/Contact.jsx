@@ -31,7 +31,6 @@ const Contact = () => {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [rooms, setRooms] = useState([]);
   const [availabilityAlert, setAvailabilityAlert] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     api.get('/rooms/public')
