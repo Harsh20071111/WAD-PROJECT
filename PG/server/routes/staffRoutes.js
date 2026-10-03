@@ -24,8 +24,8 @@ router.post('/', uploadSingle, async (req, res, next) => {
 
     let kycDocumentUrl = '';
     if (req.file) {
-      const uploadResult = await uploadBuffer(req.file.buffer, { folder: 'kyc_documents' });
-      kycDocumentUrl = uploadResult.secure_url;
+      const uploadResult = await uploadBuffer(req.file.buffer, 'kyc_documents');
+      kycDocumentUrl = uploadResult.url;
     }
 
     const [user] = await User.create([{ name, email: email.toLowerCase().trim(), phone, passwordHash: await bcrypt.hash(password, 10), role: 'STAFF', pgId: req.user.pgId }]);
